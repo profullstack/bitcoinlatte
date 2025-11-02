@@ -1,0 +1,28 @@
+@startuml
+start
+:Visit Shop Page;
+if (Logged In?) then (no)
+  :Show Login Prompt;
+  :Send Magic Link;
+  :Check Email;
+  :Click Magic Link;
+endif
+:Authenticated;
+if (Choose Action) then (Vote)
+  if (Vote Type) then (Quality)
+    :Upvote/Downvote Quality;
+  else (Bitcoin)
+    :Verify Bitcoin Acceptance;
+  endif
+  :Update Vote Count;
+else (Comment)
+  if (Comment Type) then (General)
+    :Write General Review;
+  else (Bitcoin)
+    :Share Bitcoin Experience;
+  endif
+  :Post Comment;
+endif
+:View Updated Shop;
+stop
+@enduml

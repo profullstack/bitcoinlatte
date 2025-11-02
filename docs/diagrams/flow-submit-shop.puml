@@ -1,0 +1,24 @@
+@startuml
+start
+:Click Submit Shop;
+:Submission Form;
+:Enter Shop Name;
+:Search Address;
+:Select from Suggestions;
+:Confirm Location on Map;
+:Add Details;
+:Select Crypto Types;
+:Add Business Hours;
+:Add Website/Phone;
+:Upload Images;
+:Review Submission;
+:Submit for Approval;
+:Success Message;
+if (Want to Track?) then (yes)
+  :Prompt to Login;
+  :Send Magic Link;
+else (no)
+  :Return to Map;
+endif
+stop
+@enduml

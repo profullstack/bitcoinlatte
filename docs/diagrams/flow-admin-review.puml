@@ -1,0 +1,31 @@
+@startuml
+start
+:Login as Admin;
+:Admin Dashboard;
+repeat
+  :View Pending Submissions;
+  :Select Submission;
+  :Review Details;
+  :Check Images;
+  :Verify Location;
+  :Verify Information;
+  if (Decision) then (Approve)
+    :Create Shop Entry;
+    :Copy Submission Data;
+    :Mark as Approved;
+    :Send Approval Email;
+  elseif (Reject) then
+    :Add Rejection Notes;
+    :Mark as Rejected;
+    :Send Rejection Email;
+  else (Edit)
+    :Edit Submission Data;
+    :Create Shop Entry;
+    :Mark as Approved;
+    :Send Approval Email;
+  endif
+repeat while (More Submissions?) is (yes)
+->no;
+:Return to Dashboard;
+stop
+@enduml

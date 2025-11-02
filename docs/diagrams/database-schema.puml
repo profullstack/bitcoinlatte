@@ -1,0 +1,100 @@
+@startuml
+!define TABLE entity
+!define PK <<PK>>
+!define FK <<FK>>
+
+entity users {
+  * id : uuid PK
+  --
+  email : string
+  is_admin : boolean
+  created_at : timestamp
+  last_sign_in : timestamp
+}
+
+entity shops {
+  * id : uuid PK
+  --
+  name : string
+  description : text
+  address : string
+  latitude : float
+  longitude : float
+  crypto_accepted : jsonb
+  website : string
+  phone : string
+  hours : jsonb
+  approved : boolean
+  submitted_by : uuid FK
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity submissions {
+  * id : uuid PK
+  --
+  name : string
+  description : text
+  address : string
+  latitude : float
+  longitude : float
+  crypto_accepted : jsonb
+  website : string
+  phone : string
+  hours : jsonb
+  status : string
+  submitted_by : uuid FK
+  reviewed_by : uuid FK
+  created_at : timestamp
+  reviewed_at : timestamp
+}
+
+entity shop_images {
+  * id : uuid PK
+  --
+  shop_id : uuid FK
+  image_url : string
+  thumbnail_url : string
+  is_primary : boolean
+  created_at : timestamp
+}
+
+entity submission_images {
+  * id : uuid PK
+  --
+  submission_id : uuid FK
+  image_url : string
+  created_at : timestamp
+}
+
+entity comments {
+  * id : uuid PK
+  --
+  shop_id : uuid FK
+  user_id : uuid FK
+  content : text
+  comment_type : string
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity votes {
+  * id : uuid PK
+  --
+  shop_id : uuid FK
+  user_id : uuid FK
+  vote_type : string
+  value : int
+  created_at : timestamp
+}
+
+users ||--o{ shops : creates
+users ||--o{ submissions : submits
+users ||--o{ comments : writes
+users ||--o{ votes : casts
+shops ||--o{ shop_images : has
+shops ||--o{ comments : receives
+shops ||--o{ votes : receives
+submissions ||--o{ submission_images : has
+
+@enduml

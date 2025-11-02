@@ -1,0 +1,27 @@
+@startuml
+start
+repeat
+  :Open Search/Filter;
+  if (Search Type) then (Text Search)
+    :Enter Shop Name/Address;
+    :Execute Search Query;
+  elseif (Crypto Filter) then
+    :Select Crypto Types;
+    :Apply Crypto Filter;
+  else (Location Filter)
+    :Enter Location/Use Current;
+    :Set Search Radius;
+    :Query Nearby Shops;
+  endif
+  :Display Results;
+  if (Display Mode) then (Map)
+    :Show on Map;
+  else (List)
+    :Show as List;
+  endif
+  :User Interaction;
+repeat while (Clear Filters?) is (no - Refine)
+->yes;
+:Reset to Default;
+stop
+@enduml

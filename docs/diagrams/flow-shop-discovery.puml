@@ -1,0 +1,31 @@
+@startuml
+start
+:User Opens App;
+if (Share Location?) then (yes)
+  :Get User Location;
+  :Show Nearby Shops;
+else (no)
+  :Show Default View;
+  :Show All Shops;
+endif
+:Display on Map;
+if (User Interaction) then (Search)
+  :Enter Search Query;
+  :Show Search Results;
+  :Navigate to Shop Page;
+elseif (Filter) then
+  :Open Filter Panel;
+  :Apply Crypto/Distance Filters;
+  :Update Map View;
+else (Click Marker)
+  :Show Shop Popup;
+  :Quick Shop Info;
+  if (View Full Details?) then (yes)
+    :Navigate to Shop Page;
+  else (no)
+    :Close Popup;
+  endif
+endif
+:User Actions on Shop Page;
+stop
+@enduml

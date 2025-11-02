@@ -1,0 +1,23 @@
+@startuml
+start
+:Login to Account;
+:View Profile;
+:My Submissions Tab;
+:View Submission List;
+if (Check Status) then (Pending)
+  :Yellow Badge - Under Review;
+  :Wait for Admin Review;
+elseif (Approved) then
+  :Green Badge - Live on Map;
+  :View on Map;
+else (Rejected)
+  :Red Badge - See Reason;
+  :Read Admin Notes;
+  if (Resubmit?) then (yes)
+    :Create New Submission;
+  else (no)
+  endif
+endif
+:Return to Profile;
+stop
+@enduml

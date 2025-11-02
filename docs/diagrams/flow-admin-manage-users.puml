@@ -1,0 +1,32 @@
+@startuml
+start
+:Admin Dashboard;
+:User Management;
+:View User List;
+:Select User;
+:View User Profile;
+if (Admin Actions) then (Grant Admin)
+  :Set is_admin = true;
+  :Confirm Action;
+  :Update Database;
+  :Log Admin Action;
+elseif (Revoke Admin) then
+  :Set is_admin = false;
+  :Confirm Action;
+  :Update Database;
+  :Log Admin Action;
+elseif (View Activity) then
+  :View Submissions/Comments/Votes;
+else (Moderate)
+  if (Moderation Action) then (Delete Comment)
+    :Remove Comment;
+  else (Ban User)
+    :Disable Account;
+  endif
+  :Confirm Action;
+  :Update Database;
+  :Log Admin Action;
+endif
+:Return to User List;
+stop
+@enduml

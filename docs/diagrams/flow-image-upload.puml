@@ -1,0 +1,34 @@
+@startuml
+start
+:Click Upload Image;
+:Select Image File;
+if (Validate File) then (valid)
+  :Show Image Preview;
+  if (Confirm Upload?) then (yes)
+    :Upload to Supabase;
+    :Show Progress Bar;
+    if (Upload Complete?) then (success)
+      :Process Image;
+      :Create Thumbnail;
+      :Store URLs in DB;
+      :Display in Form;
+      :Continue Submission;
+    else (error)
+      :Show Error;
+      if (Retry?) then (yes)
+        :Upload to Supabase;
+      else (no)
+        :Cancel Upload;
+        :Continue Submission;
+      endif
+    endif
+  else (no)
+    :Cancel Upload;
+    :Continue Submission;
+  endif
+else (invalid)
+  :Show Error Message;
+  :Click Upload Image;
+endif
+stop
+@enduml

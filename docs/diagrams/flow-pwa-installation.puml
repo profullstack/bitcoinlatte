@@ -1,0 +1,26 @@
+@startuml
+start
+:Visit on Mobile;
+:Detect Mobile Browser;
+if (Show Install Prompt?) then (yes)
+  :Show Install Banner;
+  if (User Action) then (Install)
+    :Add to Home Screen;
+    :Create App Icon;
+    :Launch as PWA;
+    :Enable Offline Mode;
+    :Cache Map Data;
+    :Full Screen Experience;
+    :Use as Native App;
+  elseif (Dismiss) then
+    :Continue Browsing;
+    :Show Prompt Again Later;
+  else (Later)
+    :Continue Browsing;
+    :Show Prompt Again Later;
+  endif
+else (no)
+  :Continue Browsing;
+endif
+stop
+@enduml

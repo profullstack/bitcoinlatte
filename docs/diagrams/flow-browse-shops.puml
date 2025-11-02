@@ -1,0 +1,23 @@
+@startuml
+start
+:Visit bitcoinlatte.com;
+:Home Page with Map;
+:View Interactive Map;
+if (Apply Filters?) then (yes)
+  :Filter by Crypto Type;
+else (no)
+endif
+:Browse Shops;
+:Click Shop Marker/Card;
+:View Shop Details;
+fork
+  :Get Directions;
+  :Open Apple Maps;
+fork again
+  :Get Directions;
+  :Open Google Maps;
+end fork
+:View Comments/Votes;
+:Continue Browsing;
+stop
+@enduml

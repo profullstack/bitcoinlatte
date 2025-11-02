@@ -1,0 +1,33 @@
+@startuml
+!define RECTANGLE class
+
+package "Frontend" {
+  [Next.js PWA] as PWA
+  [Leaflet Map] as Map
+  [Submission Forms] as Forms
+  [Magic Link Auth] as Auth
+}
+
+package "Backend Services" {
+  [Next.js API Routes] as API
+  [Supabase Backend] as Supabase
+  [HERE.com API] as HERE
+}
+
+package "Supabase Components" {
+  database "PostgreSQL" as DB
+  [Storage Buckets] as Storage
+  [Auth Service] as AuthService
+}
+
+actor "User Browser" as User
+
+User --> PWA : Interacts
+PWA --> API : Server Actions
+API --> Supabase : Auth/Data/Storage
+API --> HERE : Geocoding
+Supabase --> DB
+Supabase --> Storage
+Supabase --> AuthService
+
+@enduml
