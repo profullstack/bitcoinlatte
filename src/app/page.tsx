@@ -14,5 +14,17 @@ export default async function Home() {
   // Get current user
   const { data: { user } } = await supabase.auth.getUser()
   
-  return <HomeClient shops={shops || []} user={user} />
+  // Fetch user profile to check admin status
+  let isAdmin = false
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+    
+    isAdmin = profile?.is_admin || false
+  }
+  
+  return <HomeClient shops={shops || []} user={user} isAdmin={isAdmin} />
 }

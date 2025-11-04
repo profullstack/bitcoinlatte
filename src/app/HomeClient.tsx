@@ -23,9 +23,10 @@ interface User {
 interface HomeClientProps {
   shops: Shop[]
   user: User | null
+  isAdmin: boolean
 }
 
-export default function HomeClient({ shops: initialShops, user }: HomeClientProps) {
+export default function HomeClient({ shops: initialShops, user, isAdmin }: HomeClientProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [shops, setShops] = useState<Shop[]>(initialShops)
@@ -129,6 +130,14 @@ export default function HomeClient({ shops: initialShops, user }: HomeClientProp
               </div>
             </div>
             <div className="flex gap-3 items-center">
+              {user && isAdmin && (
+                <a
+                  href="/admin"
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-all hover:scale-105 shadow-lg"
+                >
+                  👑 Admin
+                </a>
+              )}
               <a
                 href="/shops/submit"
                 className="px-6 py-3 bg-orange-600 text-white rounded-lg font-bold hover:bg-orange-700 transition-all hover:scale-105 shadow-lg"

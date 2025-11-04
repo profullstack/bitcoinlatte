@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       }
       
       // Update submission status
-      const { error: updateError } = await (supabase as any)
+      const { data: updatedSubmission, error: updateError } = await (supabase as any)
         .from('submissions')
         .update({
           status: 'approved',
@@ -87,15 +87,38 @@ export async function POST(request: NextRequest) {
           review_notes: notes
         })
         .eq('id', submissionId)
+        .select()
       
       if (updateError) {
+        console.error('Failed to update submission status:', updateError)
         return NextResponse.json({ error: updateError.message }, { status: 500 })
       }
       
+      // Verify that the update actually affected a row
+      if (!updatedSubmission || updatedSubmission.length === 0) {
+        console.error('Update succeeded but no rows were affected. Possible RLS policy issue.')
+        return NextResponse.json({
+          error: 'Failed to update submission status. This may be a permissions issue.'
+        }, { status: 500 })
+      }
+      
+      console.log('Successfully approved submission:', submissionId)
       return NextResponse.json({ data: shop })
     } else if (action === 'reject') {
+      // First verify the submission exists and can be accessed
+      const { data: submission, error: fetchError } = await (supabase as any)
+        .from('submissions')
+        .select('id, status')
+        .eq('id', submissionId)
+        .single()
+      
+      if (fetchError || !submission) {
+        console.error('Failed to fetch submission for rejection:', fetchError)
+        return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
+      }
+      
       // Update submission status to rejected
-      const { error } = await (supabase as any)
+      const { data: updatedData, error: updateError } = await (supabase as any)
         .from('submissions')
         .update({
           status: 'rejected',
@@ -104,12 +127,23 @@ export async function POST(request: NextRequest) {
           review_notes: notes
         })
         .eq('id', submissionId)
+        .select()
       
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 })
+      if (updateError) {
+        console.error('Failed to update submission status:', updateError)
+        return NextResponse.json({ error: updateError.message }, { status: 500 })
       }
       
-      return NextResponse.json({ success: true })
+      // Verify that the update actually affected a row
+      if (!updatedData || updatedData.length === 0) {
+        console.error('Update succeeded but no rows were affected. Possible RLS policy issue.')
+        return NextResponse.json({
+          error: 'Failed to update submission. This may be a permissions issue.'
+        }, { status: 500 })
+      }
+      
+      console.log('Successfully rejected submission:', submissionId)
+      return NextResponse.json({ success: true, data: updatedData[0] })
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
