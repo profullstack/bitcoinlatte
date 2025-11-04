@@ -7,7 +7,13 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    console.log('[API /shops/[id]] GET request for shop ID:', id)
+    
     const supabase = await createClient()
+    
+    // Check authentication status
+    const { data: { user } } = await supabase.auth.getUser()
+    console.log('[API /shops/[id]] User authenticated:', !!user, user?.id)
     
     const { data, error } = await (supabase as any)
       .from('shops')
@@ -22,8 +28,28 @@ export async function GET(
       .eq('id', id)
       .single()
     
+    console.log('[API /shops/[id]] Query result:', {
+      hasData: !!data,
+      error: error?.message,
+      errorCode: error?.code,
+      errorDetails: error?.details,
+      errorHint: error?.hint
+    })
+    
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 404 })
+      console.error('[API /shops/[id]] Error fetching shop:', {
+        id,
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
+      return NextResponse.json({
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      }, { status: 404 })
     }
     
     // Get vote counts

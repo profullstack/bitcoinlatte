@@ -12,6 +12,10 @@ export default async function ShopDetailPage({ params }: PageProps) {
   console.log('[ShopDetailPage] Fetching shop with ID:', id)
   const supabase = await createClient()
   
+  // Check authentication status
+  const { data: { user } } = await supabase.auth.getUser()
+  console.log('[ShopDetailPage] User authenticated:', !!user, user?.id)
+  
   // Fetch shop details
   const { data: shop, error } = await (supabase as any)
     .from('shops')
@@ -26,7 +30,21 @@ export default async function ShopDetailPage({ params }: PageProps) {
     .eq('id', id)
     .single()
   
+  console.log('[ShopDetailPage] Query result:', {
+    hasShop: !!shop,
+    error: error?.message,
+    errorCode: error?.code,
+    errorDetails: error?.details,
+    errorHint: error?.hint
+  })
+  
   if (error || !shop) {
+    console.error('[ShopDetailPage] Shop not found or error:', {
+      id,
+      error: error?.message,
+      code: error?.code,
+      details: error?.details
+    })
     notFound()
   }
   
