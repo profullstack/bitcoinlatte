@@ -6,8 +6,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
     domains: [
-      // Add your Supabase project domain here after setup
-      // e.g., 'your-project.supabase.co'
+      'qtirhfpjggnkybxugxkv.supabase.co',
     ],
   },
 };

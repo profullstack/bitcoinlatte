@@ -6,7 +6,9 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "env:local": "rm -f .env && ln -s .env.local .env",
+    "env:prod": "rm -f .env && ln -s .env.prod .env"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
