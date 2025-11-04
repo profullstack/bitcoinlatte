@@ -60,7 +60,12 @@ async function getHereAutosuggest(query: string) {
     throw new Error('HERE API key not configured')
   }
 
-  const url = `https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(query)}&apiKey=${HERE_API_KEY}&limit=5`
+  // Use a default center point (San Francisco) for autosuggest
+  // This can be made dynamic based on user location in the future
+  const defaultLat = 37.7749
+  const defaultLng = -122.4194
+  
+  const url = `https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(query)}&at=${defaultLat},${defaultLng}&apiKey=${HERE_API_KEY}&limit=5`
   
   const response = await fetch(url)
   
