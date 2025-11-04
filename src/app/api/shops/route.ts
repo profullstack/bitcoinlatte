@@ -42,6 +42,16 @@ export async function GET(request: NextRequest) {
       console.log('[/api/shops] RPC success, returned', data?.length || 0, 'shops')
       console.log('[/api/shops] Sample data structure:', data?.[0])
       
+      // Log all shop IDs and names for debugging
+      if (data && data.length > 0) {
+        console.log('[/api/shops] All shops returned:', data.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          distance_km: s.distance_km,
+          approved: s.approved
+        })))
+      }
+      
       return NextResponse.json({ data })
     }
     

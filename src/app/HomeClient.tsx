@@ -95,6 +95,12 @@ export default function HomeClient({ shops: initialShops, user, isAdmin }: HomeC
       
       if (response.ok) {
         const { data } = await response.json()
+        console.log('[HomeClient] Fetched shops:', {
+          count: data?.length || 0,
+          center,
+          radius,
+          shopIds: data?.map((s: Shop) => s.id) || []
+        })
         setShops(data || [])
       } else {
         console.error('Failed to fetch user shops:', response.statusText)
