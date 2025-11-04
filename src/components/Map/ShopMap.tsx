@@ -117,9 +117,25 @@ function MapEventHandler({
   onMapMove?: (center: [number, number], bounds: L.LatLngBounds) => void
 }) {
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const hasInitializedRef = useRef(false)
   
   const map = useMapEvents({
     moveend: () => {
+      console.log('[MapEventHandler] moveend event fired')
+      
+      // Trigger immediately on first load, then debounce subsequent moves
+      if (!hasInitializedRef.current) {
+        hasInitializedRef.current = true
+        const center = map.getCenter()
+        const bounds = map.getBounds()
+        console.log('[MapEventHandler] Initial load - triggering immediately:', {
+          center: [center.lat, center.lng],
+          bounds: bounds.toBBoxString()
+        })
+        onMapMove?.([center.lat, center.lng], bounds)
+        return
+      }
+      
       // Clear existing timer
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current)
@@ -129,6 +145,10 @@ function MapEventHandler({
       debounceTimerRef.current = setTimeout(() => {
         const center = map.getCenter()
         const bounds = map.getBounds()
+        console.log('[MapEventHandler] Debounced callback executing:', {
+          center: [center.lat, center.lng],
+          bounds: bounds.toBBoxString()
+        })
         onMapMove?.([center.lat, center.lng], bounds)
       }, 500) // 500ms debounce
     }
@@ -183,50 +203,60 @@ export default function ShopMap({
     setMounted(true)
   }, [])
 
-  // Fetch OSM shops when map center changes
-  const fetchOsmShops = useCallback(async (mapCenter: [number, number]) => {
+  // Fetch OSM shops based on map bounds
+  const fetchOsmShops = useCallback(async (bounds: L.LatLngBounds) => {
+    console.log('[ShopMap] fetchOsmShops called with bounds:', bounds.toBBoxString())
     setLoading(true)
     try {
-      // Calculate bounding box from center
-      // Using a fixed radius around the center
-      const latOffset = 0.1 // ~11km
-      const lonOffset = 0.1
+      // Use actual map bounds for bbox
+      const sw = bounds.getSouthWest()
+      const ne = bounds.getNorthEast()
       const bbox = [
-        mapCenter[0] - latOffset, // south
-        mapCenter[1] - lonOffset, // west
-        mapCenter[0] + latOffset, // north
-        mapCenter[1] + lonOffset, // east
+        sw.lat, // south
+        sw.lng, // west
+        ne.lat, // north
+        ne.lng, // east
       ]
 
-      const response = await fetch(
-        `/api/osm-crypto-shops?bbox=${bbox.join(',')}`
-      )
+      console.log('[ShopMap] Calculated bbox from map bounds:', bbox)
+      console.log('[ShopMap] Bbox covers visible area')
+
+      const url = `/api/osm-crypto-shops?bbox=${bbox.join(',')}`
+      console.log('[ShopMap] Fetching from:', url)
+      
+      const response = await fetch(url)
+      
+      console.log('[ShopMap] Response status:', response.status, response.statusText)
       
       if (response.ok) {
         const data = await response.json()
+        console.log('[ShopMap] Received data:', { shopCount: data.shops?.length || 0, cached: data.cached })
         setOsmShops(data.shops || [])
       } else {
-        console.error('Failed to fetch OSM shops:', response.statusText)
+        const errorText = await response.text()
+        console.error('[ShopMap] Failed to fetch OSM shops:', response.status, response.statusText, errorText)
       }
     } catch (error) {
-      console.error('Error fetching OSM shops:', error)
+      console.error('[ShopMap] Error fetching OSM shops:', error)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  // Initial fetch on mount
-  useEffect(() => {
-    if (!mounted) return
-    fetchOsmShops(currentCenter)
-  }, [mounted, currentCenter, fetchOsmShops])
-
   // Handle map movement
   const handleMapMove = useCallback((newCenter: [number, number], bounds: L.LatLngBounds) => {
+    console.log('[ShopMap] handleMapMove called:', { newCenter, bounds: bounds.toBBoxString() })
     setCurrentCenter(newCenter)
-    fetchOsmShops(newCenter)
+    fetchOsmShops(bounds)
     onMapMove?.(newCenter, bounds)
   }, [fetchOsmShops, onMapMove])
+
+  // Initial fetch on mount - need to get bounds from map
+  useEffect(() => {
+    if (!mounted) return
+    // We can't fetch on mount without bounds, so we'll wait for the first moveend event
+    // which fires automatically when the map initializes
+  }, [mounted])
 
   // Save layer preferences to localStorage
   useEffect(() => {

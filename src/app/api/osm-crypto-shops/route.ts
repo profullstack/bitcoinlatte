@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Cache duration: 1 hour (OSM data doesn't change frequently)
-const CACHE_DURATION = 60 * 60 * 1000
-
-// In-memory cache for OSM data
-let cachedData: {
-  data: any[]
-  timestamp: number
-} | null = null
+// NOTE: Caching is currently disabled to ensure location-aware results
+// TODO: Implement smart regional caching in the future
 
 /**
  * Build Overpass QL query for cryptocurrency-accepting shops
@@ -156,10 +150,12 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const bboxParam = searchParams.get('bbox')
-    const forceRefresh = searchParams.get('force') === 'true'
+    
+    console.log('[OSM API] Request received:', { bboxParam })
     
     // Validate bbox parameter
     if (!bboxParam) {
+      console.error('[OSM API] Missing bbox parameter')
       return NextResponse.json(
         { error: 'Missing bbox parameter. Format: south,west,north,east' },
         { status: 400 }
@@ -167,44 +163,35 @@ export async function GET(request: NextRequest) {
     }
     
     const bbox = bboxParam.split(',').map(Number)
+    console.log('[OSM API] Parsed bbox:', bbox)
+    
     if (bbox.length !== 4 || bbox.some(isNaN)) {
+      console.error('[OSM API] Invalid bbox format:', bbox)
       return NextResponse.json(
         { error: 'Invalid bbox format. Expected: south,west,north,east (numbers)' },
         { status: 400 }
       )
     }
     
-    // Check cache
-    const now = Date.now()
-    if (!forceRefresh && cachedData && (now - cachedData.timestamp) < CACHE_DURATION) {
-      return NextResponse.json({
-        shops: cachedData.data,
-        cached: true,
-        timestamp: cachedData.timestamp
-      })
-    }
-    
-    // Fetch fresh data
+    // Fetch fresh data (caching disabled for now)
+    console.log('[OSM API] Fetching shops for bbox:', bbox)
     const shops = await fetchOsmShops(bbox)
-    
-    // Update cache
-    cachedData = {
-      data: shops,
-      timestamp: now
-    }
+    console.log('[OSM API] Successfully fetched shops:', shops.length)
     
     return NextResponse.json({
       shops,
       cached: false,
-      timestamp: now,
+      timestamp: Date.now(),
       count: shops.length
     })
   } catch (error) {
-    console.error('OSM API route error:', error)
+    console.error('[OSM API] Route error:', error)
+    console.error('[OSM API] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch OSM data',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     )
