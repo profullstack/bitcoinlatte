@@ -1,47 +1,154 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
 
-export default async function AdminDashboard() {
-  const supabase = await createClient()
-  
-  // Check authentication
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    redirect('/auth/login')
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+interface Submission {
+  id: string
+  name: string
+  address: string
+  description?: string
+  crypto_accepted: string[]
+  created_at: string
+  submission_images?: Array<{
+    id: string
+    image_url: string
+  }>
+}
+
+interface Stats {
+  totalShops: number
+  pendingCount: number
+}
+
+interface LoadingState {
+  [key: string]: boolean
+}
+
+interface MessageState {
+  type: 'success' | 'error'
+  text: string
+}
+
+export default function AdminDashboard() {
+  const router = useRouter()
+  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [stats, setStats] = useState<Stats>({ totalShops: 0, pendingCount: 0 })
+  const [loading, setLoading] = useState<LoadingState>({})
+  const [message, setMessage] = useState<MessageState | null>(null)
+  const [userEmail, setUserEmail] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Fetch user, submissions, and stats
+      const [userRes, submissionsRes, shopsRes, pendingRes] = await Promise.all([
+        fetch('/api/auth/user'),
+        fetch('/api/submissions?status=pending'),
+        fetch('/api/shops?approved=true&count=true'),
+        fetch('/api/submissions?status=pending&count=true')
+      ])
+
+      if (userRes.ok) {
+        const userData = await userRes.json()
+        setUserEmail(userData.email || '')
+      }
+
+      if (submissionsRes.ok) {
+        const submissionsData = await submissionsRes.json()
+        setSubmissions(submissionsData.data || [])
+      }
+
+      if (shopsRes.ok) {
+        const shopsData = await shopsRes.json()
+        setStats(prev => ({ ...prev, totalShops: shopsData.count || 0 }))
+      }
+
+      if (pendingRes.ok) {
+        const pendingData = await pendingRes.json()
+        setStats(prev => ({ ...prev, pendingCount: pendingData.count || 0 }))
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      showMessage('error', 'Failed to load dashboard data')
+    } finally {
+      setIsLoading(false)
+    }
   }
-  
-  // Check if user is admin
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single()
-  
-  if (!(profile as any)?.is_admin) {
-    redirect('/')
+
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage(null), 5000)
   }
-  
-  // Fetch pending submissions
-  const { data: submissions } = await supabase
-    .from('submissions')
-    .select('*, submission_images (*)')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false })
-  
-  // Fetch stats
-  const { count: totalShops } = await supabase
-    .from('shops')
-    .select('*', { count: 'exact', head: true })
-    .eq('approved', true)
-  
-  const { count: pendingCount } = await supabase
-    .from('submissions')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'pending')
+
+  const handleAction = async (submissionId: string, action: 'approve' | 'reject') => {
+    setLoading(prev => ({ ...prev, [submissionId]: true }))
+    
+    try {
+      const response = await fetch('/api/submissions/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          submissionId,
+          action,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to ${action} submission`)
+      }
+
+      showMessage('success', `Submission ${action}d successfully!`)
+      
+      // Refresh the page data
+      await fetchData()
+    } catch (error) {
+      console.error(`Error ${action}ing submission:`, error)
+      showMessage('error', error instanceof Error ? error.message : `Failed to ${action} submission`)
+    } finally {
+      setLoading(prev => ({ ...prev, [submissionId]: false }))
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⏳</div>
+          <p className="text-xl font-bold text-stone-900 dark:text-stone-100">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950">
+      {/* Message Toast */}
+      {message && (
+        <div className="fixed top-4 right-4 z-50 animate-slide-in">
+          <div className={`px-6 py-4 rounded-xl shadow-2xl border-2 ${
+            message.type === 'success'
+              ? 'bg-green-50 dark:bg-green-950/30 border-green-500 text-green-800 dark:text-green-400'
+              : 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-800 dark:text-red-400'
+          }`}>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{message.type === 'success' ? '✅' : '❌'}</span>
+              <p className="font-semibold">{message.text}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="glass-effect border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -52,7 +159,7 @@ export default async function AdminDashboard() {
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">Admin Dashboard</h1>
-                <p className="text-sm text-stone-600 dark:text-stone-400">Welcome back, {user.email}</p>
+                <p className="text-sm text-stone-600 dark:text-stone-400">Welcome back, {userEmail}</p>
               </div>
             </div>
             <a
@@ -76,7 +183,7 @@ export default async function AdminDashboard() {
               </div>
               <div className="text-sm font-semibold text-stone-600 dark:text-stone-400">Total Shops</div>
             </div>
-            <div className="text-4xl font-bold text-green-600 dark:text-green-500">{totalShops || 0}</div>
+            <div className="text-4xl font-bold text-green-600 dark:text-green-500">{stats.totalShops}</div>
           </div>
           <div className="glass-effect rounded-2xl shadow-lg p-6 border border-stone-200 dark:border-stone-800">
             <div className="flex items-center gap-3 mb-3">
@@ -85,7 +192,7 @@ export default async function AdminDashboard() {
               </div>
               <div className="text-sm font-semibold text-stone-600 dark:text-stone-400">Pending Review</div>
             </div>
-            <div className="text-4xl font-bold text-yellow-600 dark:text-yellow-500">{pendingCount || 0}</div>
+            <div className="text-4xl font-bold text-yellow-600 dark:text-yellow-500">{stats.pendingCount}</div>
           </div>
           <div className="glass-effect rounded-2xl shadow-lg p-6 border border-stone-200 dark:border-stone-800">
             <div className="flex items-center gap-3 mb-3">
@@ -109,7 +216,7 @@ export default async function AdminDashboard() {
           
           {submissions && submissions.length > 0 ? (
             <div className="divide-y divide-stone-200 dark:divide-stone-800">
-              {submissions.map((submission: any) => (
+              {submissions.map((submission) => (
                 <div key={submission.id} className="p-6 hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1">
@@ -127,7 +234,7 @@ export default async function AdminDashboard() {
                       
                       {/* Crypto Badges */}
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {(submission.crypto_accepted as string[])?.map((crypto) => (
+                        {submission.crypto_accepted?.map((crypto) => (
                           <span
                             key={crypto}
                             className="px-3 py-1.5 bg-amber-100 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 text-xs font-semibold rounded-lg border border-amber-200 dark:border-amber-900"
@@ -140,7 +247,7 @@ export default async function AdminDashboard() {
                       {/* Images */}
                       {submission.submission_images && submission.submission_images.length > 0 && (
                         <div className="flex gap-3 mb-4">
-                          {submission.submission_images.map((img: any) => (
+                          {submission.submission_images.map((img) => (
                             <img
                               key={img.id}
                               src={img.image_url}
@@ -159,24 +266,40 @@ export default async function AdminDashboard() {
                     
                     {/* Action Buttons */}
                     <div className="flex lg:flex-col gap-3">
-                      <form action={`/admin/submissions/${submission.id}/approve`} method="POST" className="flex-1 lg:flex-none">
-                        <button
-                          type="submit"
-                          className="w-full px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2"
-                        >
-                          <span>✅</span>
-                          <span>Approve</span>
-                        </button>
-                      </form>
-                      <form action={`/admin/submissions/${submission.id}/reject`} method="POST" className="flex-1 lg:flex-none">
-                        <button
-                          type="submit"
-                          className="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2"
-                        >
-                          <span>❌</span>
-                          <span>Reject</span>
-                        </button>
-                      </form>
+                      <button
+                        onClick={() => handleAction(submission.id, 'approve')}
+                        disabled={loading[submission.id]}
+                        className="flex-1 lg:flex-none px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading[submission.id] ? (
+                          <>
+                            <span className="animate-spin">⏳</span>
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>✅</span>
+                            <span>Approve</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleAction(submission.id, 'reject')}
+                        disabled={loading[submission.id]}
+                        className="flex-1 lg:flex-none px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading[submission.id] ? (
+                          <>
+                            <span className="animate-spin">⏳</span>
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>❌</span>
+                            <span>Reject</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
