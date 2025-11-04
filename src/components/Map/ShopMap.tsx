@@ -53,8 +53,11 @@ export default function ShopMap({
   
   if (!mounted) {
     return (
-      <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-        <p className="text-gray-500">Loading map...</p>
+      <div className="w-full h-full bg-stone-200 dark:bg-stone-800 animate-pulse flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-2">🗺️</div>
+          <p className="text-stone-600 dark:text-stone-400 font-medium">Loading map...</p>
+        </div>
       </div>
     )
   }
@@ -65,6 +68,7 @@ export default function ShopMap({
       zoom={zoom}
       className="w-full h-full"
       scrollWheelZoom={true}
+      style={{ minHeight: '400px' }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -81,15 +85,15 @@ export default function ShopMap({
           }}
         >
           <Popup>
-            <div className="p-2">
-              <h3 className="font-bold text-lg">{shop.name}</h3>
-              <p className="text-sm text-gray-600">{shop.address}</p>
+            <div className="p-3">
+              <h3 className="font-bold text-lg text-stone-900 mb-1">{shop.name}</h3>
+              <p className="text-sm text-stone-600 mb-2">{shop.address}</p>
               {shop.crypto_accepted && shop.crypto_accepted.length > 0 && (
                 <div className="mt-2 flex gap-1 flex-wrap">
                   {shop.crypto_accepted.map((crypto) => (
                     <span
                       key={crypto}
-                      className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded"
+                      className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded-md font-medium"
                     >
                       {crypto}
                     </span>
@@ -98,7 +102,7 @@ export default function ShopMap({
               )}
               <button
                 onClick={() => onShopClick?.(shop)}
-                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="mt-3 px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium transition-colors"
               >
                 View Details →
               </button>
