@@ -1,7 +1,7 @@
 -- BitcoinLatte Initial Database Schema Migration
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable UUID extension (pgcrypto is preferred over uuid-ossp in modern PostgreSQL)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Create profiles table (extends auth.users)
 CREATE TABLE public.profiles (
@@ -16,7 +16,7 @@ CREATE TABLE public.profiles (
 
 -- Create shops table
 CREATE TABLE public.shops (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
   address TEXT NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE public.shops (
 
 -- Create submissions table
 CREATE TABLE public.submissions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
   address TEXT NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE public.submissions (
 
 -- Create shop_images table
 CREATE TABLE public.shop_images (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   shop_id UUID REFERENCES public.shops(id) ON DELETE CASCADE NOT NULL,
   image_url TEXT NOT NULL,
   thumbnail_url TEXT NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE public.shop_images (
 
 -- Create submission_images table
 CREATE TABLE public.submission_images (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   submission_id UUID REFERENCES public.submissions(id) ON DELETE CASCADE NOT NULL,
   image_url TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -80,7 +80,7 @@ CREATE TABLE public.submission_images (
 
 -- Create comments table
 CREATE TABLE public.comments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   shop_id UUID REFERENCES public.shops(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   content TEXT NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE public.comments (
 
 -- Create votes table
 CREATE TABLE public.votes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   shop_id UUID REFERENCES public.shops(id) ON DELETE CASCADE,
   submission_id UUID REFERENCES public.submissions(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
