@@ -122,24 +122,24 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">⏳</div>
-          <p className="text-xl font-bold text-stone-900 dark:text-stone-100">Loading dashboard...</p>
+          <p className="text-xl font-bold text-gray-900">Loading dashboard...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Message Toast */}
       {message && (
         <div className="fixed top-4 right-4 z-50 animate-slide-in">
           <div className={`px-6 py-4 rounded-xl shadow-2xl border-2 ${
             message.type === 'success'
-              ? 'bg-green-50 dark:bg-green-950/30 border-green-500 text-green-800 dark:text-green-400'
-              : 'bg-red-50 dark:bg-red-950/30 border-red-500 text-red-800 dark:text-red-400'
+              ? 'bg-green-50 border-green-500 text-green-800'
+              : 'bg-red-50 border-red-500 text-red-800'
           }`}>
             <div className="flex items-center gap-3">
               <span className="text-2xl">{message.type === 'success' ? '✅' : '❌'}</span>
@@ -150,21 +150,21 @@ export default function AdminDashboard() {
       )}
 
       {/* Header */}
-      <header className="glass-effect border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="bg-white shadow-lg border-b-4 border-orange-500 sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl gradient-bitcoin flex items-center justify-center text-white text-2xl">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-2xl shadow-lg">
                 👑
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">Admin Dashboard</h1>
-                <p className="text-sm text-stone-600 dark:text-stone-400">Welcome back, {userEmail}</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p className="text-sm text-gray-600">Welcome back, {userEmail}</p>
               </div>
             </div>
             <a
               href="/"
-              className="px-4 py-2 border-2 border-stone-300 dark:border-stone-700 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-all font-medium"
+              className="px-6 py-3 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition-all hover:scale-105 shadow-lg"
             >
               <span className="hidden sm:inline">Back to Map</span>
               <span className="sm:hidden">←</span>
@@ -176,58 +176,58 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          <div className="glass-effect rounded-2xl shadow-lg p-6 border border-stone-200 dark:border-stone-800">
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl shadow-xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-950/30 flex items-center justify-center text-2xl">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
                 🏪
               </div>
-              <div className="text-sm font-semibold text-stone-600 dark:text-stone-400">Total Shops</div>
+              <div className="text-sm font-bold uppercase">Total Shops</div>
             </div>
-            <div className="text-4xl font-bold text-green-600 dark:text-green-500">{stats.totalShops}</div>
+            <div className="text-4xl font-black">{stats.totalShops}</div>
           </div>
-          <div className="glass-effect rounded-2xl shadow-lg p-6 border border-stone-200 dark:border-stone-800">
+          <div className="bg-gradient-to-br from-amber-500 to-yellow-500 text-white rounded-2xl shadow-xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-950/30 flex items-center justify-center text-2xl">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
                 ⏳
               </div>
-              <div className="text-sm font-semibold text-stone-600 dark:text-stone-400">Pending Review</div>
+              <div className="text-sm font-bold uppercase">Pending Review</div>
             </div>
-            <div className="text-4xl font-bold text-yellow-600 dark:text-yellow-500">{stats.pendingCount}</div>
+            <div className="text-4xl font-black">{stats.pendingCount}</div>
           </div>
-          <div className="glass-effect rounded-2xl shadow-lg p-6 border border-stone-200 dark:border-stone-800">
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl shadow-xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center text-2xl">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
                 👤
               </div>
-              <div className="text-sm font-semibold text-stone-600 dark:text-stone-400">Your Role</div>
+              <div className="text-sm font-bold uppercase">Your Role</div>
             </div>
-            <div className="text-xl font-bold text-blue-600 dark:text-blue-500">Administrator</div>
+            <div className="text-xl font-black">Administrator</div>
           </div>
         </div>
 
         {/* Pending Submissions */}
-        <div className="glass-effect rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-800">
-          <div className="p-6 border-b border-stone-200 dark:border-stone-800">
+        <div className="bg-white rounded-2xl shadow-2xl border-4 border-orange-500">
+          <div className="p-6 border-b-2 border-gray-200">
             <div className="flex items-center gap-3">
               <span className="text-2xl">📋</span>
-              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Pending Submissions</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Pending Submissions</h2>
             </div>
           </div>
           
           {submissions && submissions.length > 0 ? (
-            <div className="divide-y divide-stone-200 dark:divide-stone-800">
+            <div className="divide-y divide-gray-200">
               {submissions.map((submission) => (
-                <div key={submission.id} className="p-6 hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors">
+                <div key={submission.id} className="p-6 hover:bg-orange-50 transition-colors">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">{submission.name}</h3>
-                      <p className="text-sm text-stone-600 dark:text-stone-400 mb-3 flex items-center gap-2">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{submission.name}</h3>
+                      <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
                         <span>📍</span>
                         <span>{submission.address}</span>
                       </p>
                       
                       {submission.description && (
-                        <p className="text-sm text-stone-700 dark:text-stone-300 mb-4 p-3 bg-stone-100 dark:bg-stone-800 rounded-lg">
+                        <p className="text-sm text-gray-700 mb-4 p-3 bg-gray-100 rounded-lg">
                           {submission.description}
                         </p>
                       )}
@@ -237,7 +237,7 @@ export default function AdminDashboard() {
                         {submission.crypto_accepted?.map((crypto) => (
                           <span
                             key={crypto}
-                            className="px-3 py-1.5 bg-amber-100 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 text-xs font-semibold rounded-lg border border-amber-200 dark:border-amber-900"
+                            className="px-3 py-1.5 bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-200"
                           >
                             ₿ {crypto}
                           </span>
@@ -252,13 +252,13 @@ export default function AdminDashboard() {
                               key={img.id}
                               src={img.image_url}
                               alt="Shop"
-                              className="w-24 h-24 object-cover rounded-xl border-2 border-stone-200 dark:border-stone-700 shadow-md"
+                              className="w-24 h-24 object-cover rounded-xl border-2 border-gray-300 shadow-md"
                             />
                           ))}
                         </div>
                       )}
                       
-                      <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-2">
+                      <div className="text-xs text-gray-500 flex items-center gap-2">
                         <span>🕒</span>
                         <span>Submitted {new Date(submission.created_at).toLocaleDateString()}</span>
                       </div>
@@ -308,8 +308,8 @@ export default function AdminDashboard() {
           ) : (
             <div className="p-16 text-center">
               <div className="text-6xl mb-4">🎉</div>
-              <p className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">No pending submissions</p>
-              <p className="text-sm text-stone-600 dark:text-stone-400">All caught up! Great work!</p>
+              <p className="text-xl font-bold text-gray-900 mb-2">No pending submissions</p>
+              <p className="text-sm text-gray-600">All caught up! Great work!</p>
             </div>
           )}
         </div>
