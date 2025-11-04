@@ -34,14 +34,14 @@ async function searchBusinessNames(query: string) {
  * Transform ValueSerp results to simplified format for name suggestions
  */
 function transformBusinessResults(valueSerpData: any) {
-  const places = valueSerpData.local_results?.places || []
+  const places = valueSerpData.local_results || []
   
   return places.map((place: any) => ({
     name: place.title || place.name,
     address: place.address || `${place.city || ''}, ${place.state || ''}`.trim(),
     rating: place.rating,
     reviews: place.reviews,
-    type: place.type,
+    type: place.business_type,
   }))
 }
 
