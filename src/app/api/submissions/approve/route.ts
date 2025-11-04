@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
+    const serviceRoleClient = createServiceRoleClient()
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
       }
       
-      // Create shop from submission
+      // Create shop from submission using service role client to bypass RLS
       console.log('[APPROVE] About to insert shop with data:', {
         name: submission.name,
         address: submission.address,
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
         approved_by: user.id
       })
       
-      const { data: shop, error: shopError } = await (supabase as any)
+      const { data: shop, error: shopError } = await (serviceRoleClient as any)
         .from('shops')
         .insert({
           name: submission.name,
@@ -85,8 +86,8 @@ export async function POST(request: NextRequest) {
       
       console.log('[APPROVE] Successfully created shop:', shop.id)
       
-      // Copy images from submission to shop
-      const { data: submissionImages } = await (supabase as any)
+      // Copy images from submission to shop using service role client
+      const { data: submissionImages } = await (serviceRoleClient as any)
         .from('submission_images')
         .select('*')
         .eq('submission_id', submissionId)
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
           uploaded_by: submission.submitted_by
         }))
         
-        await (supabase as any).from('shop_images').insert(shopImages)
+        await (serviceRoleClient as any).from('shop_images').insert(shopImages)
       }
       
       // Update submission status

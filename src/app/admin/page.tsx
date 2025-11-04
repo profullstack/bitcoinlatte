@@ -16,6 +16,20 @@ interface Submission {
   }>
 }
 
+interface Shop {
+  id: string
+  name: string
+  address: string
+  description?: string
+  latitude: number
+  longitude: number
+  crypto_accepted: string[]
+  website?: string
+  phone?: string
+  hours?: string
+  created_at: string
+}
+
 interface Stats {
   totalShops: number
   pendingCount: number
@@ -45,6 +59,9 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState<MessageState | null>(null)
   const [userEmail, setUserEmail] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
+  const [editingShop, setEditingShop] = useState<Shop | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<Shop>>({})
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -153,6 +170,80 @@ export default function AdminDashboard() {
     } finally {
       setLoading(prev => ({ ...prev, [loadingKey]: false }))
     }
+  }
+
+  const handleEdit = async (submission: Submission) => {
+    try {
+      // Find the corresponding shop by matching name and address
+      // Since approved submissions create shops, we need to find the shop
+      const response = await fetch('/api/shops?approved=true')
+      if (!response.ok) {
+        throw new Error('Failed to fetch shops')
+      }
+      
+      const data = await response.json()
+      const shop = data.data?.find((s: Shop) =>
+        s.name === submission.name && s.address === submission.address
+      )
+      
+      if (!shop) {
+        throw new Error('Shop not found. It may not have been created yet.')
+      }
+      
+      setEditingShop(shop)
+      setEditFormData({
+        name: shop.name,
+        description: shop.description || '',
+        address: shop.address,
+        latitude: shop.latitude,
+        longitude: shop.longitude,
+        crypto_accepted: shop.crypto_accepted,
+        website: shop.website || '',
+        phone: shop.phone || '',
+        hours: shop.hours || ''
+      })
+    } catch (error) {
+      console.error('Error fetching shop for edit:', error)
+      showMessage('error', error instanceof Error ? error.message : 'Failed to load shop data')
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingShop) return
+    
+    setIsSaving(true)
+    try {
+      const response = await fetch(`/api/shops/${editingShop.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editFormData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update shop')
+      }
+
+      showMessage('success', 'Shop updated successfully!')
+      setEditingShop(null)
+      setEditFormData({})
+      
+      // Refresh the page data
+      await fetchData()
+    } catch (error) {
+      console.error('Error updating shop:', error)
+      showMessage('error', error instanceof Error ? error.message : 'Failed to update shop')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingShop(null)
+    setEditFormData({})
   }
 
   if (isLoading) {
@@ -453,6 +544,17 @@ export default function AdminDashboard() {
                             <span>Submitted {new Date(submission.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
+                        
+                        {/* Edit Button */}
+                        <div className="flex lg:flex-col gap-3">
+                          <button
+                            onClick={() => handleEdit(submission)}
+                            className="flex-1 lg:flex-none px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2"
+                          >
+                            <span>✏️</span>
+                            <span>Edit</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -537,6 +639,188 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Edit Shop Modal */}
+      {editingShop && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b-2 border-orange-500 p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">✏️</span>
+                  <h2 className="text-2xl font-bold text-gray-900">Edit Shop</h2>
+                </div>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Shop Name *
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.name || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={editFormData.description || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  rows={3}
+                />
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Address *
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.address || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Latitude & Longitude */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Latitude *
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={editFormData.latitude || ''}
+                    onChange={(e) => setEditFormData({ ...editFormData, latitude: parseFloat(e.target.value) })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Longitude *
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={editFormData.longitude || ''}
+                    onChange={(e) => setEditFormData({ ...editFormData, longitude: parseFloat(e.target.value) })}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Crypto Accepted */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Cryptocurrencies Accepted (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.crypto_accepted?.join(', ') || ''}
+                  onChange={(e) => setEditFormData({
+                    ...editFormData,
+                    crypto_accepted: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                  })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  placeholder="Bitcoin, Lightning, Ethereum"
+                />
+              </div>
+
+              {/* Website */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Website
+                </label>
+                <input
+                  type="url"
+                  value={editFormData.website || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, website: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  placeholder="https://example.com"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={editFormData.phone || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+
+              {/* Hours */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Hours
+                </label>
+                <textarea
+                  value={editFormData.hours || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, hours: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:outline-none"
+                  rows={2}
+                  placeholder="Mon-Fri: 9am-5pm"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-gray-50 border-t-2 border-gray-200 p-6 rounded-b-2xl flex gap-3">
+              <button
+                onClick={handleCancelEdit}
+                disabled={isSaving}
+                className="flex-1 px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-all text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSaving || !editFormData.name || !editFormData.address}
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? (
+                  <>
+                    <span className="animate-spin">⏳</span>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>💾</span>
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

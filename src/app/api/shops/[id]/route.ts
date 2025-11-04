@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
@@ -51,6 +51,7 @@ export async function PATCH(
   try {
     const { id } = await params
     const supabase = await createClient()
+    const serviceRoleClient = createServiceRoleClient()
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -70,7 +71,8 @@ export async function PATCH(
     
     const body = await request.json()
     
-    const { data, error } = await (supabase as any)
+    // Use service role client to bypass RLS
+    const { data, error } = await (serviceRoleClient as any)
       .from('shops')
       .update(body)
       .eq('id', id)
