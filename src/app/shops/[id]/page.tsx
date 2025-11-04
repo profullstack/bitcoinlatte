@@ -9,6 +9,7 @@ interface PageProps {
 
 export default async function ShopDetailPage({ params }: PageProps) {
   const { id } = await params
+  console.log('[ShopDetailPage] Fetching shop with ID:', id)
   const supabase = await createClient()
   
   // Fetch shop details

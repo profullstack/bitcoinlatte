@@ -1,9 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ShopMap from '@/components/Map/MapWrapper'
+import type L from 'leaflet'
 
 interface Shop {
   id: string
@@ -24,13 +25,87 @@ interface HomeClientProps {
   user: User | null
 }
 
-export default function HomeClient({ shops, user }: HomeClientProps) {
+export default function HomeClient({ shops: initialShops, user }: HomeClientProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [shops, setShops] = useState<Shop[]>(initialShops)
+  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]) // Default to SF
+  const [isLocating, setIsLocating] = useState(false)
   const supabase = createClient()
 
+  // Fetch user shops based on map location
+  const fetchUserShops = useCallback(async (center: [number, number]) => {
+    try {
+      const radius = 10 // 10km radius
+      const response = await fetch(
+        `/api/shops?lat=${center[0]}&lng=${center[1]}&radius=${radius}`
+      )
+      
+      if (response.ok) {
+        const { data } = await response.json()
+        setShops(data || [])
+      } else {
+        console.error('Failed to fetch user shops:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error fetching user shops:', error)
+    }
+  }, [])
+
+  // Handle map movement - fetch shops for new location
+  const handleMapMove = useCallback((center: [number, number], bounds: L.LatLngBounds) => {
+    setMapCenter(center)
+    fetchUserShops(center)
+  }, [fetchUserShops])
+
+  // Try to get user's geolocation on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      setIsLocating(true)
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation: [number, number] = [
+            position.coords.latitude,
+            position.coords.longitude
+          ]
+          setMapCenter(userLocation)
+          fetchUserShops(userLocation)
+          setIsLocating(false)
+        },
+        (error) => {
+          console.log('Geolocation error:', error.message, '- using default location')
+          // Fall back to default location (San Francisco)
+          fetchUserShops(mapCenter)
+          setIsLocating(false)
+        },
+        {
+          timeout: 5000,
+          maximumAge: 300000, // Cache for 5 minutes
+        }
+      )
+    } else {
+      // Geolocation not supported, use default
+      fetchUserShops(mapCenter)
+    }
+  }, []) // Only run once on mount
+
   const handleShopClick = (shop: Shop) => {
-    router.push(`/shops/${shop.id}`)
+    // Only navigate to detail page for user-submitted shops
+    // OSM shops don't have database records, so they can only be viewed in the map popup
+    const isOsmShop = shop.id.startsWith('osm-')
+    
+    console.log('[HomeClient] handleShopClick called:', {
+      id: shop.id,
+      name: shop.name,
+      source: (shop as any).source,
+      isOsmShop,
+      willNavigate: !isOsmShop
+    })
+    
+    if (!isOsmShop) {
+      router.push(`/shops/${shop.id}`)
+    }
+    // For OSM shops, do nothing - the popup already shows all available info
   }
 
   const handleLogout = async () => {
@@ -136,13 +211,20 @@ export default function HomeClient({ shops, user }: HomeClientProps) {
       {/* Map */}
       <div className="flex-1 p-6 flex flex-col">
         <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col">
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-orange-500 flex-1 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-orange-500 flex-1 flex flex-col relative">
+            {isLocating && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1001] bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                <span className="font-semibold">Finding your location...</span>
+              </div>
+            )}
             <div className="flex-1 w-full h-full">
               <ShopMap
                 shops={shops}
-                center={[37.7749, -122.4194]}
+                center={mapCenter}
                 zoom={13}
                 onShopClick={handleShopClick}
+                onMapMove={handleMapMove}
               />
             </div>
           </div>

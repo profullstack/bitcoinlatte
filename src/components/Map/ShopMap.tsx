@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import LayerToggle, { LayerState } from './LayerToggle'
@@ -97,6 +97,7 @@ interface ShopMapProps {
   center?: [number, number]
   zoom?: number
   onShopClick?: (shop: Shop) => void
+  onMapMove?: (center: [number, number], bounds: L.LatLngBounds) => void
 }
 
 function MapUpdater({ center }: { center: [number, number] }) {
@@ -109,15 +110,53 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null
 }
 
+// Component to handle map movement events with debouncing
+function MapEventHandler({
+  onMapMove
+}: {
+  onMapMove?: (center: [number, number], bounds: L.LatLngBounds) => void
+}) {
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  
+  const map = useMapEvents({
+    moveend: () => {
+      // Clear existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      
+      // Set new timer for debounced callback
+      debounceTimerRef.current = setTimeout(() => {
+        const center = map.getCenter()
+        const bounds = map.getBounds()
+        onMapMove?.([center.lat, center.lng], bounds)
+      }, 500) // 500ms debounce
+    }
+  })
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+  
+  return null
+}
+
 export default function ShopMap({
   shops,
   center = [37.7749, -122.4194], // Default to San Francisco
   zoom = 13,
-  onShopClick
+  onShopClick,
+  onMapMove
 }: ShopMapProps) {
   const [mounted, setMounted] = useState(false)
   const [osmShops, setOsmShops] = useState<OsmShop[]>([])
   const [loading, setLoading] = useState(false)
+  const [currentCenter, setCurrentCenter] = useState<[number, number]>(center)
   const [layers, setLayers] = useState<LayerState>(() => {
     // Load layer preferences from localStorage
     if (typeof window !== 'undefined') {
@@ -144,43 +183,50 @@ export default function ShopMap({
     setMounted(true)
   }, [])
 
-  // Fetch OSM shops when map bounds change
+  // Fetch OSM shops when map center changes
+  const fetchOsmShops = useCallback(async (mapCenter: [number, number]) => {
+    setLoading(true)
+    try {
+      // Calculate bounding box from center
+      // Using a fixed radius around the center
+      const latOffset = 0.1 // ~11km
+      const lonOffset = 0.1
+      const bbox = [
+        mapCenter[0] - latOffset, // south
+        mapCenter[1] - lonOffset, // west
+        mapCenter[0] + latOffset, // north
+        mapCenter[1] + lonOffset, // east
+      ]
+
+      const response = await fetch(
+        `/api/osm-crypto-shops?bbox=${bbox.join(',')}`
+      )
+      
+      if (response.ok) {
+        const data = await response.json()
+        setOsmShops(data.shops || [])
+      } else {
+        console.error('Failed to fetch OSM shops:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error fetching OSM shops:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // Initial fetch on mount
   useEffect(() => {
     if (!mounted) return
+    fetchOsmShops(currentCenter)
+  }, [mounted, currentCenter, fetchOsmShops])
 
-    const fetchOsmShops = async () => {
-      setLoading(true)
-      try {
-        // Calculate bounding box from center and zoom
-        // For simplicity, using a fixed radius around the center
-        const latOffset = 0.1 // ~11km
-        const lonOffset = 0.1
-        const bbox = [
-          center[0] - latOffset, // south
-          center[1] - lonOffset, // west
-          center[0] + latOffset, // north
-          center[1] + lonOffset, // east
-        ]
-
-        const response = await fetch(
-          `/api/osm-crypto-shops?bbox=${bbox.join(',')}`
-        )
-        
-        if (response.ok) {
-          const data = await response.json()
-          setOsmShops(data.shops || [])
-        } else {
-          console.error('Failed to fetch OSM shops:', response.statusText)
-        }
-      } catch (error) {
-        console.error('Error fetching OSM shops:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchOsmShops()
-  }, [mounted, center])
+  // Handle map movement
+  const handleMapMove = useCallback((newCenter: [number, number], bounds: L.LatLngBounds) => {
+    setCurrentCenter(newCenter)
+    fetchOsmShops(newCenter)
+    onMapMove?.(newCenter, bounds)
+  }, [fetchOsmShops, onMapMove])
 
   // Save layer preferences to localStorage
   useEffect(() => {
@@ -256,7 +302,21 @@ export default function ShopMap({
             position={[shop.latitude, shop.longitude]}
             icon={getShopIcon(shop)}
             eventHandlers={{
-              click: () => onShopClick?.(shop)
+              click: () => {
+                const isOsmShop = shop.source === 'osm'
+                console.log('[ShopMap] Shop clicked:', {
+                  id: shop.id,
+                  name: shop.name,
+                  source: shop.source,
+                  isOSM: isOsmShop,
+                  willTriggerNavigation: !isOsmShop
+                })
+                // Only trigger onShopClick for user shops (which navigates to detail page)
+                // OSM shops show all info in the popup, so no navigation needed
+                if (!isOsmShop) {
+                  onShopClick?.(shop)
+                }
+              }
             }}
           >
             <Popup>
@@ -318,11 +378,19 @@ export default function ShopMap({
 
                 {shop.source === 'user' && (
                   <button
-                    onClick={() => onShopClick?.(shop)}
+                    onClick={(e) => {
+                      e.stopPropagation() // Prevent marker click from firing again
+                      onShopClick?.(shop)
+                    }}
                     className="mt-3 w-full px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium transition-colors"
                   >
                     View Details →
                   </button>
+                )}
+                {shop.source === 'osm' && (
+                  <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                    <span className="font-semibold">ℹ️ OSM Shop:</span> This shop is from OpenStreetMap. All available information is shown above.
+                  </div>
                 )}
               </div>
             </Popup>
