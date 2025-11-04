@@ -1,11 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import dynamic from 'next/dynamic'
+import ShopMap from '@/components/Map/MapWrapper'
 import ShopDetailClient from '@/components/Shop/ShopDetailClient'
-
-const ShopMap = dynamic(() => import('@/components/Map/ShopMap'), {
-  ssr: false,
-})
 
 interface PageProps {
   params: { id: string }

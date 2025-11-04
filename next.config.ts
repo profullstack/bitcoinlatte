@@ -5,8 +5,12 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   images: {
-    domains: [
-      'qtirhfpjggnkybxugxkv.supabase.co',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'qtirhfpjggnkybxugxkv.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
   },
 };

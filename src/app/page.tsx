@@ -1,15 +1,5 @@
-import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
-
-// Dynamically import map component (client-side only)
-const ShopMap = dynamic(() => import('@/components/Map/ShopMap'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-      <p className="text-gray-500">Loading map...</p>
-    </div>
-  ),
-})
+import ShopMap from '@/components/Map/MapWrapper'
 
 export default async function Home() {
   const supabase = createClient()
