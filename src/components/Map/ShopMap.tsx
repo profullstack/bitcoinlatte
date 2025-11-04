@@ -68,7 +68,7 @@ export default function ShopMap({
       zoom={zoom}
       className="w-full h-full"
       scrollWheelZoom={true}
-      style={{ minHeight: '400px' }}
+      style={{ width: '100%', height: '100%', minHeight: '500px' }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

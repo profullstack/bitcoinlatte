@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import HomeClient from './HomeClient'
 
 export default async function Home() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Fetch approved shops
   const { data: shops } = await supabase

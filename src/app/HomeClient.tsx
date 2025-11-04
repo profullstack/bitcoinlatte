@@ -26,132 +26,137 @@ export default function HomeClient({ shops }: HomeClientProps) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-stone-50 dark:bg-stone-950">
-      {/* Hero Header */}
-      <header className="relative glass-effect border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Bar */}
-          <div className="flex items-center justify-between py-4">
-            {/* Logo & Brand */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-3xl sm:text-4xl">☕</span>
-                <div className="flex flex-col">
-                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent">
-                    BitcoinLatte
-                  </h1>
-                  <p className="text-xs text-stone-600 dark:text-stone-400 hidden sm:block">
-                    Discover crypto-friendly cafés
-                  </p>
-                </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 to-amber-50">
+      {/* Header */}
+      <header className="bg-white shadow-lg border-b-4 border-orange-500 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <span className="text-6xl">☕</span>
+              <div>
+                <h1 className="text-4xl font-black text-gray-900">
+                  Bitcoin<span className="text-orange-600">Latte</span>
+                </h1>
+                <p className="text-gray-600 font-semibold">Find Bitcoin-Friendly Coffee Shops</p>
               </div>
             </div>
-
-            {/* Navigation */}
-            <nav className="flex items-center gap-2 sm:gap-3">
+            <div className="flex gap-3">
               <a
                 href="/shops/submit"
-                className="px-3 sm:px-5 py-2 sm:py-2.5 gradient-bitcoin text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium text-sm sm:text-base flex items-center gap-2"
+                className="px-6 py-3 bg-orange-600 text-white rounded-lg font-bold hover:bg-orange-700 transition-all hover:scale-105 shadow-lg"
               >
-                <span className="hidden sm:inline">➕</span>
-                <span>Add Shop</span>
+                ➕ Add Shop
               </a>
               <a
                 href="/auth/login"
-                className="px-3 sm:px-5 py-2 sm:py-2.5 border-2 border-stone-300 dark:border-stone-700 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-200 font-medium text-sm sm:text-base"
+                className="px-6 py-3 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition-all hover:scale-105 shadow-lg"
               >
                 Login
               </a>
-            </nav>
-          </div>
-
-          {/* Search Bar */}
-          <div className="pb-4">
-            <div className="relative max-w-2xl mx-auto">
-              <input
-                type="text"
-                placeholder="Search for coffee shops, cities, or cryptocurrencies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-5 py-3 pl-12 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 focus:border-amber-500 dark:focus:border-amber-600 focus:ring-4 focus:ring-amber-500/20 transition-all outline-none text-sm sm:text-base"
-              />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">🔍</span>
             </div>
+          </div>
+          
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search coffee shops, cities, or cryptocurrencies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-6 py-4 pl-14 text-lg border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-200 outline-none transition-all"
+            />
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl">🔍</span>
           </div>
         </div>
       </header>
 
-      {/* Stats Bar */}
-      <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 border-b border-stone-200 dark:border-stone-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🏪</span>
-              <div>
-                <p className="font-bold text-amber-900 dark:text-amber-100">{shops.length}</p>
-                <p className="text-xs text-stone-600 dark:text-stone-400">Coffee Shops</p>
+      {/* Stats */}
+      <div className="bg-white border-b-2 border-gray-200 py-6 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <span className="text-5xl">🏪</span>
+                <div>
+                  <p className="text-4xl font-black">{shops.length}</p>
+                  <p className="text-orange-100 font-bold uppercase text-sm">Coffee Shops</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">₿</span>
-              <div>
-                <p className="font-bold text-amber-900 dark:text-amber-100">Bitcoin</p>
-                <p className="text-xs text-stone-600 dark:text-stone-400">Accepted</p>
+            <div className="bg-gradient-to-br from-amber-500 to-yellow-500 text-white p-6 rounded-2xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <span className="text-5xl">₿</span>
+                <div>
+                  <p className="text-3xl font-black">Bitcoin</p>
+                  <p className="text-amber-100 font-bold uppercase text-sm">Accepted</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">⚡</span>
-              <div>
-                <p className="font-bold text-amber-900 dark:text-amber-100">Lightning</p>
-                <p className="text-xs text-stone-600 dark:text-stone-400">Fast Payments</p>
+            <div className="bg-gradient-to-br from-yellow-500 to-orange-400 text-white p-6 rounded-2xl shadow-xl">
+              <div className="flex items-center gap-4">
+                <span className="text-5xl">⚡</span>
+                <div>
+                  <p className="text-3xl font-black">Lightning</p>
+                  <p className="text-yellow-100 font-bold uppercase text-sm">Fast Payments</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Map Section */}
-      <div className="flex-1 relative">
-        <div className="absolute inset-0 p-2 sm:p-4">
-          <div className="h-full rounded-xl overflow-hidden shadow-2xl border-2 border-stone-200 dark:border-stone-800">
-            <ShopMap
-              shops={shops}
-              center={[37.7749, -122.4194]}
-              zoom={13}
-              onShopClick={handleShopClick}
-            />
+      {/* Map */}
+      <div className="flex-1 p-6 flex flex-col">
+        <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-orange-500 flex-1 flex flex-col">
+            <div className="flex-1 w-full h-full">
+              <ShopMap
+                shops={shops}
+                center={[37.7749, -122.4194]}
+                zoom={13}
+                onShopClick={handleShopClick}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="glass-effect border-t border-stone-200 dark:border-stone-800 py-6">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-              <span className="text-lg">🌍</span>
-              <p className="text-center sm:text-left">
+      <footer className="bg-gray-900 text-white py-8 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🌍</span>
+              <p className="font-bold text-lg">
                 Empowering the Bitcoin economy, one coffee at a time
               </p>
             </div>
-            <div className="flex items-center gap-6">
-              <a
-                href="/about"
-                className="text-stone-600 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors font-medium"
-              >
+            <div className="flex gap-6">
+              <a href="/about" className="font-bold hover:text-orange-400 transition-colors">
                 About
               </a>
               <a
-                href="https://github.com/yourusername/bitcoinlatte"
-                className="text-stone-600 dark:text-stone-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors font-medium flex items-center gap-1"
+                href="https://github.com/profullstack/bitcoinlatte"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold hover:text-orange-400 transition-colors flex items-center gap-2"
               >
-                <span>GitHub</span>
-                <span className="text-xs">↗</span>
+                GitHub <span>↗</span>
               </a>
             </div>
           </div>
+          <div className="text-center text-sm text-gray-400 border-t border-gray-800 pt-4">
+            &copy; 2025{' '}
+            <a
+              href="https://profullstack.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-orange-400 transition-colors font-semibold"
+            >
+              Profullstack, Inc.
+            </a>
+          </div>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }
