@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
@@ -35,6 +35,9 @@ export default function SubmitShopPage() {
     phone: '',
     hours: {},
   })
+  
+  // Debounce timer for address search
+  const addressDebounceTimer = useRef<NodeJS.Timeout | null>(null)
 
   const handleAddressSearch = async (query: string) => {
     if (query.length < 3) {
@@ -60,6 +63,28 @@ export default function SubmitShopPage() {
       setAddressSuggestions([])
     }
   }
+  
+  // Debounced address search function
+  const debouncedAddressSearch = (query: string) => {
+    // Clear existing timer
+    if (addressDebounceTimer.current) {
+      clearTimeout(addressDebounceTimer.current)
+    }
+    
+    // Set new timer
+    addressDebounceTimer.current = setTimeout(() => {
+      handleAddressSearch(query)
+    }, 600) // 600ms debounce delay
+  }
+  
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (addressDebounceTimer.current) {
+        clearTimeout(addressDebounceTimer.current)
+      }
+    }
+  }, [])
 
   const handleAddressSelect = async (suggestion: any) => {
     const address = suggestion.address?.label || suggestion.title
@@ -103,53 +128,6 @@ export default function SubmitShopPage() {
     }
   }
 
-  const handleNameSearch = async (query: string) => {
-    if (query.length < 2) {
-      setNameSuggestions([])
-      return
-    }
-
-    // Only search if we have a location
-    if (!formData.latitude || !formData.longitude) {
-      return
-    }
-
-    try {
-      // Search for businesses near the selected location
-      const searchQuery = `${query} coffee near ${formData.address}`
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchQuery)}&type=autosuggest`)
-      const { data, error } = await response.json()
-      
-      if (error) {
-        console.error('Name search error:', error)
-        setNameSuggestions([])
-        return
-      }
-      
-      if (data?.items) {
-        // Filter to only show results that match the name query
-        const filtered = data.items.filter((item: any) =>
-          item.title?.toLowerCase().includes(query.toLowerCase())
-        )
-        setNameSuggestions(filtered)
-      }
-    } catch (error) {
-      console.error('Name search error:', error)
-      setNameSuggestions([])
-    }
-  }
-
-  const handleNameSelect = (suggestion: any) => {
-    setFormData({
-      ...formData,
-      name: suggestion.title,
-      // Auto-fill additional fields from metadata if available
-      phone: suggestion.metadata?.phone || formData.phone,
-      website: suggestion.metadata?.website || formData.website,
-      description: suggestion.metadata?.type || formData.description,
-    })
-    setNameSuggestions([])
-  }
 
   const handleCryptoToggle = (cryptoId: string) => {
     setFormData({
@@ -239,7 +217,7 @@ export default function SubmitShopPage() {
                 value={formData.address}
                 onChange={(e) => {
                   setFormData({ ...formData, address: e.target.value })
-                  handleAddressSearch(e.target.value)
+                  debouncedAddressSearch(e.target.value)
                 }}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-500 transition-all outline-none text-gray-900"
                 placeholder="Start typing an address..."
@@ -267,15 +245,10 @@ export default function SubmitShopPage() {
               )}
             </div>
 
-            {/* Shop Name - Now Second with Autocomplete */}
-            <div className="relative">
+            {/* Shop Name */}
+            <div>
               <label className="block text-sm font-bold text-gray-900 mb-2">
                 ☕ Shop Name *
-                {formData.latitude === 0 && (
-                  <span className="ml-2 text-xs font-normal text-orange-600">
-                    (Select address first for autocomplete)
-                  </span>
-                )}
               </label>
               <input
                 type="text"
@@ -283,38 +256,10 @@ export default function SubmitShopPage() {
                 value={formData.name}
                 onChange={(e) => {
                   setFormData({ ...formData, name: e.target.value })
-                  handleNameSearch(e.target.value)
                 }}
-                disabled={formData.latitude === 0}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-500 transition-all outline-none text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                placeholder={formData.latitude === 0 ? "Select address first..." : "Start typing shop name..."}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-500 transition-all outline-none text-gray-900"
+                placeholder="Enter the coffee shop name..."
               />
-              
-              {nameSuggestions.length > 0 && (
-                <div className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-300 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                  {nameSuggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleNameSelect(suggestion)}
-                      className="w-full px-4 py-3 text-left hover:bg-orange-50 border-b border-gray-200 last:border-b-0 transition-colors"
-                    >
-                      <div className="font-bold text-gray-900">{suggestion.title}</div>
-                      <div className="text-sm text-gray-600">{suggestion.address?.label}</div>
-                      {suggestion.metadata?.rating && (
-                        <div className="text-xs text-orange-600 mt-1">
-                          ⭐ {suggestion.metadata.rating} {suggestion.metadata.reviews && `(${suggestion.metadata.reviews} reviews)`}
-                        </div>
-                      )}
-                      {suggestion.metadata?.type && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          {suggestion.metadata.type}
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Map Preview */}
