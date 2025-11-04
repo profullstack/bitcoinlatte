@@ -98,6 +98,8 @@ interface ShopMapProps {
   zoom?: number
   onShopClick?: (shop: Shop) => void
   onMapMove?: (center: [number, number], bounds: L.LatLngBounds) => void
+  onOsmShopsUpdate?: (osmShops: Shop[]) => void
+  onLayerChange?: (layers: LayerState) => void
 }
 
 function MapUpdater({ center }: { center: [number, number] }) {
@@ -171,7 +173,9 @@ export default function ShopMap({
   center = [37.7749, -122.4194], // Default to San Francisco
   zoom = 13,
   onShopClick,
-  onMapMove
+  onMapMove,
+  onOsmShopsUpdate,
+  onLayerChange
 }: ShopMapProps) {
   const [mounted, setMounted] = useState(false)
   const [osmShops, setOsmShops] = useState<OsmShop[]>([])
@@ -231,7 +235,10 @@ export default function ShopMap({
       if (response.ok) {
         const data = await response.json()
         console.log('[ShopMap] Received data:', { shopCount: data.shops?.length || 0, cached: data.cached })
-        setOsmShops(data.shops || [])
+        const newOsmShops = data.shops || []
+        setOsmShops(newOsmShops)
+        // Notify parent component of OSM shops update
+        onOsmShopsUpdate?.(newOsmShops)
       } else {
         const errorText = await response.text()
         console.error('[ShopMap] Failed to fetch OSM shops:', response.status, response.statusText, errorText)
@@ -258,12 +265,14 @@ export default function ShopMap({
     // which fires automatically when the map initializes
   }, [mounted])
 
-  // Save layer preferences to localStorage
+  // Save layer preferences to localStorage and notify parent
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('mapLayers', JSON.stringify(layers))
     }
-  }, [layers])
+    // Notify parent component of layer changes
+    onLayerChange?.(layers)
+  }, [layers, onLayerChange])
 
   // Filter shops based on active layers
   const getVisibleShops = () => {
