@@ -11,6 +11,12 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
+    // Disable image optimization cache
+    unoptimized: process.env.DISABLE_CACHE === 'true',
+  },
+  // Disable static page generation cache
+  experimental: {
+    isrMemoryCacheSize: 0, // Disable ISR cache
   },
 };
 
