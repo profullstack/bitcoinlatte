@@ -181,6 +181,7 @@ export default function ShopMap({
   const [osmShops, setOsmShops] = useState<OsmShop[]>([])
   const [loading, setLoading] = useState(false)
   const [currentCenter, setCurrentCenter] = useState<[number, number]>(center)
+  const abortControllerRef = useRef<AbortController | null>(null)
   const [layers, setLayers] = useState<LayerState>(() => {
     // Load layer preferences from localStorage
     if (typeof window !== 'undefined') {
@@ -210,6 +211,17 @@ export default function ShopMap({
   // Fetch OSM shops based on map bounds
   const fetchOsmShops = useCallback(async (bounds: L.LatLngBounds) => {
     console.log('[ShopMap] fetchOsmShops called with bounds:', bounds.toBBoxString())
+    
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      console.log('[ShopMap] Aborting previous request')
+      abortControllerRef.current.abort()
+    }
+    
+    // Create new AbortController for this request
+    abortControllerRef.current = new AbortController()
+    const signal = abortControllerRef.current.signal
+    
     setLoading(true)
     try {
       // Use actual map bounds for bbox
@@ -228,7 +240,7 @@ export default function ShopMap({
       const url = `/api/osm-crypto-shops?bbox=${bbox.join(',')}`
       console.log('[ShopMap] Fetching from:', url)
       
-      const response = await fetch(url)
+      const response = await fetch(url, { signal })
       
       console.log('[ShopMap] Response status:', response.status, response.statusText)
       
@@ -244,11 +256,16 @@ export default function ShopMap({
         console.error('[ShopMap] Failed to fetch OSM shops:', response.status, response.statusText, errorText)
       }
     } catch (error) {
+      // Ignore abort errors - they're expected when cancelling requests
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('[ShopMap] Request aborted (expected behavior)')
+        return
+      }
       console.error('[ShopMap] Error fetching OSM shops:', error)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [onOsmShopsUpdate])
 
   // Handle map movement
   const handleMapMove = useCallback((newCenter: [number, number], bounds: L.LatLngBounds) => {
@@ -264,6 +281,16 @@ export default function ShopMap({
     // We can't fetch on mount without bounds, so we'll wait for the first moveend event
     // which fires automatically when the map initializes
   }, [mounted])
+
+  // Cleanup: abort any pending requests on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        console.log('[ShopMap] Component unmounting - aborting pending request')
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   // Save layer preferences to localStorage and notify parent
   useEffect(() => {
