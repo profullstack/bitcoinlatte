@@ -13,9 +13,14 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single() : { data: null }
     
+    // Extract query parameters
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const count = searchParams.get('count') === 'true'
+    
     let query = supabase
       .from('submissions')
-      .select('*, submission_images (*)')
+      .select('*, submission_images (*)', { count: count ? 'exact' : undefined })
       .order('created_at', { ascending: false })
     
     // Non-admins can only see their own submissions
@@ -27,10 +32,20 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    const { data, error } = await query
+    // Apply status filter if provided
+    if (status) {
+      query = query.eq('status', status)
+    }
+    
+    const { data, error, count: totalCount } = await query
     
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    // Return count if requested
+    if (count) {
+      return NextResponse.json({ count: totalCount })
     }
     
     return NextResponse.json({ data })
