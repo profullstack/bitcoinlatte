@@ -4,10 +4,11 @@ import ShopMap from '@/components/Map/MapWrapper'
 import ShopDetailClient from '@/components/Shop/ShopDetailClient'
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function ShopDetailPage({ params }: PageProps) {
+  const { id } = await params
   const supabase = createClient()
   
   // Fetch shop details
@@ -21,7 +22,7 @@ export default async function ShopDetailPage({ params }: PageProps) {
         profiles (display_name, avatar_url)
       )
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
   
   if (error || !shop) {
@@ -30,7 +31,7 @@ export default async function ShopDetailPage({ params }: PageProps) {
   
   // Get vote counts
   const { data: voteData } = await supabase
-    .rpc('calculate_shop_score', { shop_uuid: params.id })
+    .rpc('calculate_shop_score', { shop_uuid: id })
   
   const votes = voteData?.[0] || { 
     quality_score: 0, 
@@ -139,7 +140,7 @@ export default async function ShopDetailPage({ params }: PageProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Client-side components (voting & comments) */}
-            <ShopDetailClient shopId={params.id} votes={votes} />
+            <ShopDetailClient shopId={id} votes={votes} />
 
             {/* Location Info */}
             <div className="bg-white rounded-lg shadow-sm p-6">

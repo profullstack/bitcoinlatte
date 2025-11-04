@@ -3,9 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = createClient()
     
     const { data, error } = await supabase
@@ -18,7 +19,7 @@ export async function GET(
           profiles (display_name, avatar_url)
         )
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
     
     if (error) {
@@ -27,7 +28,7 @@ export async function GET(
     
     // Get vote counts
     const { data: voteData } = await supabase
-      .rpc('calculate_shop_score', { shop_uuid: params.id })
+      .rpc('calculate_shop_score', { shop_uuid: id })
     
     return NextResponse.json({ 
       data: {
@@ -45,9 +46,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -71,7 +73,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from('shops')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     
@@ -90,9 +92,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -114,7 +117,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('shops')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
     
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
