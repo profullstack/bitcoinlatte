@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import LayerToggle, { LayerState } from './LayerToggle'
 
 // Fix for default marker icons in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -13,6 +14,64 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
+// Custom marker icons for different cryptocurrencies
+const createCryptoIcon = (color: string, emoji: string) => {
+  return L.divIcon({
+    className: 'custom-crypto-marker',
+    html: `
+      <div style="
+        background-color: ${color};
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      ">
+        ${emoji}
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
+  })
+}
+
+// User shop icon (amber/yellow)
+const userShopIcon = L.divIcon({
+  className: 'custom-user-marker',
+  html: `
+    <div style="
+      background-color: #f59e0b;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    ">
+      🏪
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16],
+})
+
+// Crypto-specific icons
+const cryptoIcons = {
+  BTC: createCryptoIcon('#f97316', '₿'),
+  BCH: createCryptoIcon('#22c55e', '💚'),
+  LTC: createCryptoIcon('#3b82f6', '🔷'),
+  XMR: createCryptoIcon('#a855f7', '🔒'),
+}
+
 interface Shop {
   id: string
   name: string
@@ -20,6 +79,17 @@ interface Shop {
   latitude: number
   longitude: number
   crypto_accepted: string[]
+  source?: 'user' | 'osm'
+  shop_type?: string
+  website?: string | null
+  phone?: string | null
+  opening_hours?: string | null
+}
+
+interface OsmShop extends Shop {
+  source: 'osm'
+  osmId: number
+  osmType: string
 }
 
 interface ShopMapProps {
@@ -39,17 +109,120 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null
 }
 
-export default function ShopMap({ 
-  shops, 
+export default function ShopMap({
+  shops,
   center = [37.7749, -122.4194], // Default to San Francisco
   zoom = 13,
-  onShopClick 
+  onShopClick
 }: ShopMapProps) {
   const [mounted, setMounted] = useState(false)
+  const [osmShops, setOsmShops] = useState<OsmShop[]>([])
+  const [loading, setLoading] = useState(false)
+  const [layers, setLayers] = useState<LayerState>(() => {
+    // Load layer preferences from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mapLayers')
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch (e) {
+          console.error('Failed to parse saved layers:', e)
+        }
+      }
+    }
+    // Default: all layers enabled
+    return {
+      BTC: true,
+      BCH: true,
+      LTC: true,
+      XMR: true,
+      userShops: true,
+    }
+  })
   
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch OSM shops when map bounds change
+  useEffect(() => {
+    if (!mounted) return
+
+    const fetchOsmShops = async () => {
+      setLoading(true)
+      try {
+        // Calculate bounding box from center and zoom
+        // For simplicity, using a fixed radius around the center
+        const latOffset = 0.1 // ~11km
+        const lonOffset = 0.1
+        const bbox = [
+          center[0] - latOffset, // south
+          center[1] - lonOffset, // west
+          center[0] + latOffset, // north
+          center[1] + lonOffset, // east
+        ]
+
+        const response = await fetch(
+          `/api/osm-crypto-shops?bbox=${bbox.join(',')}`
+        )
+        
+        if (response.ok) {
+          const data = await response.json()
+          setOsmShops(data.shops || [])
+        } else {
+          console.error('Failed to fetch OSM shops:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error fetching OSM shops:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOsmShops()
+  }, [mounted, center])
+
+  // Save layer preferences to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('mapLayers', JSON.stringify(layers))
+    }
+  }, [layers])
+
+  // Filter shops based on active layers
+  const getVisibleShops = () => {
+    const visible: Shop[] = []
+
+    // Add user shops if layer is active
+    if (layers.userShops) {
+      visible.push(...shops.map(shop => ({ ...shop, source: 'user' as const })))
+    }
+
+    // Add OSM shops filtered by crypto type
+    osmShops.forEach(shop => {
+      const hasVisibleCrypto = shop.crypto_accepted.some(crypto => {
+        return layers[crypto as keyof typeof cryptoIcons]
+      })
+      if (hasVisibleCrypto) {
+        visible.push(shop)
+      }
+    })
+
+    return visible
+  }
+
+  // Get appropriate icon for a shop
+  const getShopIcon = (shop: Shop) => {
+    if (shop.source === 'user') {
+      return userShopIcon
+    }
+    
+    // For OSM shops, use the first crypto type's icon
+    const firstCrypto = shop.crypto_accepted[0] as keyof typeof cryptoIcons
+    return cryptoIcons[firstCrypto] || cryptoIcons.BTC
+  }
+
+  const visibleShops = getVisibleShops()
   
   if (!mounted) {
     return (
@@ -63,53 +236,125 @@ export default function ShopMap({
   }
   
   return (
-    <MapContainer
-      center={center}
-      zoom={zoom}
-      className="w-full h-full"
-      scrollWheelZoom={true}
-      style={{ width: '100%', height: '100%', minHeight: '500px' }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <MapUpdater center={center} />
-      
-      {shops.map((shop) => (
-        <Marker
-          key={shop.id}
-          position={[shop.latitude, shop.longitude]}
-          eventHandlers={{
-            click: () => onShopClick?.(shop)
-          }}
-        >
-          <Popup>
-            <div className="p-3">
-              <h3 className="font-bold text-lg text-stone-900 mb-1">{shop.name}</h3>
-              <p className="text-sm text-stone-600 mb-2">{shop.address}</p>
-              {shop.crypto_accepted && shop.crypto_accepted.length > 0 && (
-                <div className="mt-2 flex gap-1 flex-wrap">
-                  {shop.crypto_accepted.map((crypto) => (
-                    <span
-                      key={crypto}
-                      className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded-md font-medium"
-                    >
-                      {crypto}
+    <div className="relative w-full h-full">
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        className="w-full h-full"
+        scrollWheelZoom={true}
+        style={{ width: '100%', height: '100%', minHeight: '500px' }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <MapUpdater center={center} />
+        
+        {visibleShops.map((shop) => (
+          <Marker
+            key={shop.id}
+            position={[shop.latitude, shop.longitude]}
+            icon={getShopIcon(shop)}
+            eventHandlers={{
+              click: () => onShopClick?.(shop)
+            }}
+          >
+            <Popup>
+              <div className="p-3 min-w-[250px]">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-bold text-lg text-stone-900">{shop.name}</h3>
+                  {shop.source === 'osm' && (
+                    <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">
+                      OSM
                     </span>
-                  ))}
+                  )}
                 </div>
-              )}
-              <button
-                onClick={() => onShopClick?.(shop)}
-                className="mt-3 px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium transition-colors"
-              >
-                View Details →
-              </button>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+                <p className="text-sm text-stone-600 mb-2">{shop.address}</p>
+                
+                {shop.crypto_accepted && shop.crypto_accepted.length > 0 && (
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {shop.crypto_accepted.map((crypto) => (
+                      <span
+                        key={crypto}
+                        className="px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded-md font-medium"
+                      >
+                        {crypto}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {shop.source === 'osm' && (
+                  <div className="mt-3 pt-3 border-t border-gray-200 space-y-1 text-xs text-gray-600">
+                    {shop.shop_type && (
+                      <div>
+                        <span className="font-semibold">Type:</span> {shop.shop_type}
+                      </div>
+                    )}
+                    {shop.opening_hours && (
+                      <div>
+                        <span className="font-semibold">Hours:</span> {shop.opening_hours}
+                      </div>
+                    )}
+                    {shop.phone && (
+                      <div>
+                        <span className="font-semibold">Phone:</span> {shop.phone}
+                      </div>
+                    )}
+                    {shop.website && (
+                      <div>
+                        <a
+                          href={shop.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          Visit Website →
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {shop.source === 'user' && (
+                  <button
+                    onClick={() => onShopClick?.(shop)}
+                    className="mt-3 w-full px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 text-sm font-medium transition-colors"
+                  >
+                    View Details →
+                  </button>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+
+      {/* Layer Toggle Control */}
+      <LayerToggle layers={layers} onLayerChange={setLayers} />
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="absolute bottom-4 left-4 z-[1000] bg-white px-4 py-2 rounded-lg shadow-lg border-2 border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-500 border-t-transparent" />
+            <span className="text-sm font-semibold text-gray-700">Loading OSM shops...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Shop Count */}
+      <div className="absolute bottom-4 right-4 z-[1000] bg-white px-4 py-2 rounded-lg shadow-lg border-2 border-gray-200">
+        <div className="text-sm">
+          <span className="font-bold text-gray-900">{visibleShops.length}</span>
+          <span className="text-gray-600"> shops visible</span>
+          {osmShops.length > 0 && (
+            <span className="text-xs text-gray-500 ml-2">
+              ({shops.length} user, {osmShops.length} OSM)
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
