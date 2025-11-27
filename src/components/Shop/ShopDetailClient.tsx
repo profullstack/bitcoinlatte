@@ -1,11 +1,14 @@
 'use client'
 
+import { useEffect } from 'react'
 import VoteButton from '@/components/Voting/VoteButton'
 import CommentForm from '@/components/Comments/CommentForm'
 import { useRouter } from 'next/navigation'
+import { trackShopView } from '@/lib/analytics/datafast'
 
 interface ShopDetailClientProps {
   shopId: string
+  shopName?: string
   votes: {
     quality_score: number
     bitcoin_verified_score: number
@@ -13,8 +16,13 @@ interface ShopDetailClientProps {
   }
 }
 
-export default function ShopDetailClient({ shopId, votes }: ShopDetailClientProps) {
+export default function ShopDetailClient({ shopId, shopName, votes }: ShopDetailClientProps) {
   const router = useRouter()
+
+  // Track shop view on mount
+  useEffect(() => {
+    trackShopView(shopId, shopName || 'Unknown Shop')
+  }, [shopId, shopName])
 
   const handleCommentAdded = () => {
     // Refresh the page to show new comment

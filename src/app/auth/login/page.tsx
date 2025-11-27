@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { trackLogin, trackPageView } from '@/lib/analytics/datafast'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,11 @@ export default function LoginPage() {
   const [message, setMessage] = useState('')
   const router = useRouter()
   const supabase = createClient()
+
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView('login')
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,6 +34,8 @@ export default function LoginPage() {
       if (error) {
         setMessage(`Error: ${error.message}`)
       } else {
+        // Track login attempt with Datafast
+        trackLogin(email)
         setMessage('Check your email for the magic link!')
       }
     } catch (error) {

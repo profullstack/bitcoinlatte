@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { trackAdminAction, trackPageView } from '@/lib/analytics/datafast'
 
 interface Submission {
   id: string
@@ -64,6 +65,7 @@ export default function AdminDashboard() {
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
+    trackPageView('admin_dashboard')
     fetchData()
   }, [])
 
@@ -160,6 +162,9 @@ export default function AdminDashboard() {
         throw new Error(data.error || `Failed to ${action} submission`)
       }
 
+      // Track admin action with Datafast
+      trackAdminAction(action, submissionId)
+
       showMessage('success', `Submission ${action}d successfully!`)
       
       // Refresh the page data
@@ -190,6 +195,8 @@ export default function AdminDashboard() {
         throw new Error('Shop not found. It may not have been created yet.')
       }
       
+      console.log('[DEBUG] Shop hours type:', typeof shop.hours, 'value:', shop.hours)
+      
       setEditingShop(shop)
       setEditFormData({
         name: shop.name,
@@ -200,8 +207,10 @@ export default function AdminDashboard() {
         crypto_accepted: shop.crypto_accepted,
         website: shop.website || '',
         phone: shop.phone || '',
-        hours: shop.hours || ''
+        hours: shop.hours ? JSON.stringify(shop.hours, null, 2) : ''
       })
+      
+      console.log('[DEBUG] Edit form hours set to:', shop.hours ? JSON.stringify(shop.hours, null, 2) : '')
     } catch (error) {
       console.error('Error fetching shop for edit:', error)
       showMessage('error', error instanceof Error ? error.message : 'Failed to load shop data')
@@ -213,12 +222,23 @@ export default function AdminDashboard() {
     
     setIsSaving(true)
     try {
+      console.log('[DEBUG] Saving shop with hours:', editFormData.hours)
+      console.log('[DEBUG] Hours type:', typeof editFormData.hours)
+      
+      // Parse hours back to JSON if it's a string
+      const dataToSave = {
+        ...editFormData,
+        hours: editFormData.hours ? JSON.parse(editFormData.hours as string) : null
+      }
+      
+      console.log('[DEBUG] Parsed hours for save:', dataToSave.hours)
+      
       const response = await fetch(`/api/shops/${editingShop.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editFormData),
+        body: JSON.stringify(dataToSave),
       })
 
       const data = await response.json()
@@ -226,6 +246,9 @@ export default function AdminDashboard() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to update shop')
       }
+
+      // Track admin edit action with Datafast
+      trackAdminAction('edit', editingShop.id)
 
       showMessage('success', 'Shop updated successfully!')
       setEditingShop(null)
@@ -441,6 +464,13 @@ export default function AdminDashboard() {
                         {/* Action Buttons */}
                         <div className="flex lg:flex-col gap-3">
                           <button
+                            onClick={() => handleEdit(submission)}
+                            className="flex-1 lg:flex-none px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2"
+                          >
+                            <span>✏️</span>
+                            <span>Edit</span>
+                          </button>
+                          <button
                             onClick={() => handleAction(submission.id, 'approve')}
                             disabled={loading[`${submission.id}-approve`]}
                             className="flex-1 lg:flex-none px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -623,6 +653,17 @@ export default function AdminDashboard() {
                             <span>🕒</span>
                             <span>Submitted {new Date(submission.created_at).toLocaleDateString()}</span>
                           </div>
+                        </div>
+                        
+                        {/* Edit Button */}
+                        <div className="flex lg:flex-col gap-3">
+                          <button
+                            onClick={() => handleEdit(submission)}
+                            className="flex-1 lg:flex-none px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-lg transition-all text-sm font-bold flex items-center justify-center gap-2"
+                          >
+                            <span>✏️</span>
+                            <span>Edit</span>
+                          </button>
                         </div>
                       </div>
                     </div>

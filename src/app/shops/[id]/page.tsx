@@ -180,7 +180,7 @@ export default async function ShopDetailPage({ params }: PageProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Client-side components (voting & comments) */}
-            <ShopDetailClient shopId={id} votes={votes} />
+            <ShopDetailClient shopId={id} shopName={shop.name} votes={votes} />
 
             {/* Location Info */}
             <div className="glass-effect rounded-2xl shadow-lg p-6 border border-stone-200 dark:border-stone-800">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { trackShopSubmission, trackPageView } from '@/lib/analytics/datafast'
 
 const ShopMap = dynamic(() => import('@/components/Map/ShopMap'), {
   ssr: false,
@@ -130,6 +131,11 @@ export default function SubmitShopPage() {
     }, 600) // 600ms debounce delay
   }
   
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView('submit_shop')
+  }, [])
+  
   // Cleanup debounce timers on unmount
   useEffect(() => {
     return () => {
@@ -206,6 +212,9 @@ export default function SubmitShopPage() {
       })
 
       if (response.ok) {
+        // Track the shop submission with Datafast
+        trackShopSubmission(formData.name)
+        
         alert('Shop submitted successfully! It will be reviewed by our team.')
         router.push('/')
       } else {

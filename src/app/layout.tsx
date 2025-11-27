@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
@@ -37,6 +38,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          defer
+          data-website-id="dfid_Ix4urXXqp2H0jWQUDgBZA"
+          data-domain="bitcoinlatte.com"
+          src="https://datafa.st/js/script.js"
+          strategy="afterInteractive"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { trackComment } from '@/lib/analytics/datafast'
 
 interface CommentFormProps {
   shopId: string
@@ -51,6 +52,9 @@ export default function CommentForm({ shopId, onCommentAdded }: CommentFormProps
       })
 
       if (response.ok) {
+        // Track the comment with Datafast
+        trackComment(shopId)
+        
         setContent('')
         onCommentAdded?.()
       } else {

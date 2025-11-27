@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { trackVote } from '@/lib/analytics/datafast'
 
 interface VoteButtonProps {
   shopId: string
@@ -64,6 +65,9 @@ export default function VoteButton({ shopId, voteType, initialScore, label }: Vo
       })
 
       if (response.ok) {
+        // Track the vote with Datafast
+        trackVote(shopId, value === 1 ? 'up' : 'down')
+        
         // Update local state
         const diff = userVote === value ? -value : (userVote ? value - userVote : value)
         setScore(score + diff)
