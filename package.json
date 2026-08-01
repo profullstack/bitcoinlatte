@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "env:local": "rm -f .env && ln -s .env.local .env",
-    "env:prod": "rm -f .env && ln -s .env.prod .env"
+    "env:prod": "rm -f .env && ln -s .env.prod .env",
+    "postinstall": "pnpm dlx @socketsecurity/socket-patch apply --silent --ecosystems npm",
+    "dependencies": "pnpm dlx @socketsecurity/socket-patch apply --silent --ecosystems npm"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",

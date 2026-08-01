@@ -1,0 +1,277 @@
+{
+  "patches": {
+    "pkg:npm/next@16.0.1": {
+      "uuid": "471b2995-8ee6-42d0-85ff-9cceefced773",
+      "exportedAt": "Thu, 18 Dec 2025 15:01:43 GMT",
+      "files": {
+        "package/dist/compiled/next-server/app-page-experimental.runtime.dev.js": {
+          "beforeHash": "d549fc219b736b8bd8609abec8d83a73870a9118ee9bcd21e12a2ed2bdeaa8b0",
+          "afterHash": "3b05c1b47fcddbd29ad67d63fbfb8f95d8dca70eef68f24951fd295e0f27eb64"
+        },
+        "package/dist/compiled/next-server/app-page-experimental.runtime.prod.js": {
+          "beforeHash": "99b5dcf777aa338c5fc27c33f9bfd7ba9c7b2d82349f6dffdc27577a8f0ab5e2",
+          "afterHash": "d30ce349f0e5a877acdc20f6921490fa8ad10abd80b0bb62c95ba877ff2091c8"
+        },
+        "package/dist/compiled/next-server/app-page-turbo-experimental.runtime.dev.js": {
+          "beforeHash": "dfba6ee1372e4e3011260067cd501efffdce0bba9ba42ddc01a5e3d4a93c7b5e",
+          "afterHash": "638e5ed6f3154f7667e1be5919897b80de346d01db463c02dea0346ace1d3e83"
+        },
+        "package/dist/compiled/next-server/app-page-turbo-experimental.runtime.prod.js": {
+          "beforeHash": "996259d073a0caf39cf2ccc35414883c1c874f243d14259a0eab30f222e76cc4",
+          "afterHash": "264b99915e50e84b71b3d5747126f97f1a584f71d5cfabb8233b527904039ed8"
+        },
+        "package/dist/compiled/next-server/app-page-turbo.runtime.dev.js": {
+          "beforeHash": "2cb65513fc8eaf9e5e8a2db433c2ac908f53242a075f5b84c78ec7e41bea4272",
+          "afterHash": "d90916773925394b463a1d3908297064e2852f500ec923c87559793fd016a370"
+        },
+        "package/dist/compiled/next-server/app-page-turbo.runtime.prod.js": {
+          "beforeHash": "9f45f398e0b1b89fab33fc1e2dd3187e94141f049cd6f313418e3556c177458c",
+          "afterHash": "ae6ce6b34ab0920b164cf8bc76c28638dce8e6ba0b57b956630b5b9935802257"
+        },
+        "package/dist/compiled/next-server/app-page.runtime.dev.js": {
+          "beforeHash": "edb470d929bf3175e2e3bdf6a8efb7ac109636d66a8393dffefd555facc1572f",
+          "afterHash": "ac32c4b153c4ff4281bf74de2489ed2781e3289c00405002be8b50af601dd47e"
+        },
+        "package/dist/compiled/next-server/app-page.runtime.prod.js": {
+          "beforeHash": "f2265a5ebd1161cfb3ee52af6f35eb377ecb63659fdd70c2492aa897d254f9e6",
+          "afterHash": "87a6b280a33fb63c763de91a187c51848b0d94f82e07cab33d00a4072536aa5d"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-client.browser.development.js": {
+          "beforeHash": "492501087fcbd54778ec3a9c5d611685aa2f32afc7ae7f839fdf2ca335ae5b73",
+          "afterHash": "3769db71ce345cbc2e2acdd31341294bf40a8617d6500150572a725e9819095f"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-client.browser.production.js": {
+          "beforeHash": "adce762b454e41cb6bbdde6b5097ca14fe9143e7cb9db930e168617facfffcf6",
+          "afterHash": "be551adf8e5eb28a6bb9b382e32a90fa0897b6f8e0af070cdb7b3f4c8b3977b1"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-client.edge.development.js": {
+          "beforeHash": "804c88eb6a6ab2b6f9ab1d0a627c012167ba682d306e82de8b13c11d0a7294d2",
+          "afterHash": "784341b58d367398a0f82572f7f4ca01d027b19f1d412d55b8796b5615be89d9"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-client.edge.production.js": {
+          "beforeHash": "c1ead658a76167ac0e280697692572614128a844dda55559f1b99703d3f1e415",
+          "afterHash": "dceb356d1092dacd92f1317bae4a4ad3e27b2f32a2dfcd5606ee8f0ac4a0f9fe"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-client.node.development.js": {
+          "beforeHash": "0c80342a9344e8443993917d2372dd1e97802cb613ae1cbd2151240923bb8b6f",
+          "afterHash": "068de91ceef97df88afab1f77c742ad5029635ea510d963aa14af68e85697737"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-client.node.production.js": {
+          "beforeHash": "88e58a41675cfd1f91630da9ca41e4a4aefa23c37fe78678695f81b97c3ca9dd",
+          "afterHash": "012330b9220666fc00eca9d951452a33654b1d8ded07bdfecb25417a192b2799"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-server.browser.development.js": {
+          "beforeHash": "18dd4094d1a62adc27dc6375cd7ee9c52f4772cda92b51ccc1e356701dacb2f8",
+          "afterHash": "ca4fd4986fdb74a08f161a106d52670762bdd409af3c6b6740a5a6a2377ba4ff"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-server.browser.production.js": {
+          "beforeHash": "1c5746acb7223fe7c6b2c6744fe2afa9ad18f233ac8b7b826d085c9205e18dfa",
+          "afterHash": "4abc1e608d0bae24d820f1d26f007f43f6f17627c0db0fa7facd464073287618"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-server.edge.development.js": {
+          "beforeHash": "da2877f0db3619816395654bfafaebf217416d1324649f0d130371d5858ddde6",
+          "afterHash": "22e851440b893a14abddd97141447e15209671122fd43f0cdc29b09125d74021"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-server.edge.production.js": {
+          "beforeHash": "c6771b3c6cfd39133021b424f8d2568b1ac0dfcfcaf57b8c650e5853f6a6933e",
+          "afterHash": "b3c12b1ebb3f1314f6b80ec318cfc140e3fc312c6ff16d734871f0237e042b01"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-server.node.development.js": {
+          "beforeHash": "3a5b8db959f86accbe3baee4f76f1c53f3dd76bdf4e83bc99424bf8b462eb877",
+          "afterHash": "5be52dc3e1eaf6b4747a657f2633b6941febca993ae275bc803bb820d46e5cb5"
+        },
+        "package/dist/compiled/react-server-dom-turbopack-experimental/cjs/react-server-dom-turbopack-server.node.production.js": {
+          "beforeHash": "858a914b7f13847324f6b8db889466147be926f7eb787e600850490f4d949731",
+          "afterHash": "0c812846e214b720f64c074c9f1ec5e18c99f3095c618741f8751fcd9be3ca0b"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.development.js": {
+          "beforeHash": "c554371401b4c7bc96c4c0db2d3332bc73fd90b34cf19f2f16d179d2699bba05",
+          "afterHash": "3356331f60e8999db217dfab41a14439c03c7322aefc4beba2b13b80b209fbfb"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.production.js": {
+          "beforeHash": "4e74c05bfb832afd983e30c1bf1bf99798d81f339cf8db9ee079f04cc442c409",
+          "afterHash": "80febc6dced20523ab050f5596db30fbddfd9232d6519f8f72f520823d2873bc"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.edge.development.js": {
+          "beforeHash": "aa9c77569973de4399878151f9559d7a4e51b4f60d65c9bfeacdded6a6b7da08",
+          "afterHash": "dcf68c4ba3f5b42d02263bdc56a33d31bfac8ddae095ee74b0446372731d5526"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.edge.production.js": {
+          "beforeHash": "bff65b757b90dc5f97e264b04e5a15b07ef3c8b1f54bee6fdca7fb3aa0ebac99",
+          "afterHash": "c4d9070f60aa492175664f0af933b57056decd8567e2f60bfd097b9c4d7c4816"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.node.development.js": {
+          "beforeHash": "646dfe9f0a3b2780da4134caae67bfdfdd643eb25234218f99041efe808a6163",
+          "afterHash": "273408f8f8dc041ae605ae600565ad4a7c03874fb6941b54a69a876292ce9221"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.node.production.js": {
+          "beforeHash": "2f18ede692f2e866b09fb8c4372a1d4e0c6807512b3a936498c840aac3e37676",
+          "afterHash": "63ec4afe35af75f2a7aab678d165d886f15cb85ceb25589a0c1b6d10290b8b2b"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.browser.development.js": {
+          "beforeHash": "e1499eea0305fa0a152b70f3aa08e3529be45b38232bd0bfa4291d5c7cd9d55e",
+          "afterHash": "ecded1df0415abcb43a07a5be9969d2835be8e9343028890bb7f040ec6998201"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.browser.production.js": {
+          "beforeHash": "069f041142ad81c856d358cad9d5d52df6a7d856b3541f399242e60f8d7a518e",
+          "afterHash": "50a769e5d100e5ba5a5127d05c2ff31a23ef82a0def65ef9a10e5425af30fe84"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.edge.development.js": {
+          "beforeHash": "6d1306b53a10e015daea74fe2e3ed3204ef2f35d74bc774d0a9faa7027716c35",
+          "afterHash": "70d1b02ffe4f9b4e5c94f623424088f5f5243be581d59bac38e45a366ed75e8d"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.edge.production.js": {
+          "beforeHash": "ddc21e258cb3c1d3f215f5a555990c6cb81de1fcfdd31435145999d95b54480a",
+          "afterHash": "14bd3d5c5fe8ac43de0d4123be346f4188bab22c183678040290f972aad60489"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.node.development.js": {
+          "beforeHash": "cf0c541d1d88d892deacf11a2f079d3c4c8257188ab7d9b450f5660e84890c95",
+          "afterHash": "10f1f1367537cbeb4c278e30cb326dcdebdd29fce412b3ee6029966a63504aee"
+        },
+        "package/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.node.production.js": {
+          "beforeHash": "c6f5e787deb88a3ae740e256dc343d4f2e7480bfd1629bdcf70ee5855e78d832",
+          "afterHash": "fc9d49d51ff6139737f52d2fb33e9588479d0cd34d84569cfce41c8e33dd9773"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.browser.development.js": {
+          "beforeHash": "9554912a38750c47f1de9c83f01ec5a22c505ad37ae89ccd263e87ad3ee80017",
+          "afterHash": "584e22dcdc4c543aa1b79724c111d870df40739e79ccf8190a8bf2a1350222ec"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.browser.production.js": {
+          "beforeHash": "ef28a0335b3d9c96aba833ab52f5b1f193b901a8fd6cdffe53f2150a42da93e6",
+          "afterHash": "500c5a47bd2aa62722aaaadcc91a27457b6693fd000c9345e166e423bb2e9aab"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.edge.development.js": {
+          "beforeHash": "17d070b9e36b1333cab9cf762c69f98452e2c578b048ee67834fc92babeef0c3",
+          "afterHash": "8f36c2adeb5b92983140bbcef643dec7714ac7332a472ce069f02018e8f62f63"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.edge.production.js": {
+          "beforeHash": "2b3b988cf8a14af7560561c3126f9e3f2d2ebd9d7e8e830e46df585ce4c32b38",
+          "afterHash": "ea1e62e7ec7458d2682acbb47145a3a7d8a6b64495a0ba38b16247b175716bc6"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.node.development.js": {
+          "beforeHash": "7522d0728000239c2015065efbace7ea5dea700a968d25fb8697574109448e0c",
+          "afterHash": "9bca507d259419df9d133bad8726f382cc0ba2e4aa80632b6e79874d6d8b9a4a"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.node.production.js": {
+          "beforeHash": "0e5fc23fb2114a48109b5ad43005c85911f9250a0d6b4f1123215a2f1e2f6a1e",
+          "afterHash": "580f113a2230c8d9bf3bea9ea9078700b9e86d93c93f36c06ef91dc736653bb9"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.node.unbundled.development.js": {
+          "beforeHash": "f8c47da1aac909bddacc01b8e7610c5770512f0fff2e2f8a35cea7a89ab0a2ad",
+          "afterHash": "9f758f3d4dc534834f138ac543e06f2fb16affe48b08e40150fc911e62e877e1"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-client.node.unbundled.production.js": {
+          "beforeHash": "3f69a7eddbdce56dc09d94289f189e1bae133616175dd914d111d28158742de3",
+          "afterHash": "de4df298e66d0544773d4cbf7c068b753462a0a5662082764a6bc1edcf09ddba"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.browser.development.js": {
+          "beforeHash": "6d769e2bea01ff7d4e314bce05e5c19952072f7534df58b6154f28377315557c",
+          "afterHash": "00913293de95209144b392bf55f9cfd12e0fc0e3eb88e45b7af7ca1a502307f2"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.browser.production.js": {
+          "beforeHash": "a4f3bc23dbc54a7b43b115a319c4181628143530312e3a43324021de512899d2",
+          "afterHash": "fcb51ff218276af1dd5f54c834bb370d6f757759a019c3bf8c336db2962d0ee8"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.edge.development.js": {
+          "beforeHash": "d24352f4a8fd7a241d34d8dc58a5ea880b7f56ccc3752ff236c72bc47cd4a4c6",
+          "afterHash": "96d7912ed5593a01e45492f11e4dfb422a5ceb3543f50b8e48a6ff0bee0f1e09"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.edge.production.js": {
+          "beforeHash": "d654f57a0c0c3612cf3954bcd65edd775fb521276dd490e4972a58bf9488bc55",
+          "afterHash": "a358d46e6aa83085acda89bd28b110a4e1fd6d1a437d139cfccbdfd9b3f8368d"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.node.development.js": {
+          "beforeHash": "6add62a03caef2640f9e977f750fd8fc10c230f75cf026a9ee91e5c4be7071ff",
+          "afterHash": "b6165049f23726ed50fe9e64823a40aa8b6540b7a688de3160bfddff8cf64d83"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.node.production.js": {
+          "beforeHash": "5b49d6ab1c8b77fc618fda9519b18a2ba1e2e54be997372f04d7a23c5c72074c",
+          "afterHash": "5587907cfc3cd0d2cc420c2183a22410f6fe8b809ce955b22fdc678e5a01739e"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.node.unbundled.development.js": {
+          "beforeHash": "e7fdbf4592f791aa33004637eeb5bd019d63c925ead30aca093a49e854f5f4a3",
+          "afterHash": "c1921ac6173515da21fbe5bcf27a83524a3effe41d6555d228cddf338297df21"
+        },
+        "package/dist/compiled/react-server-dom-webpack-experimental/cjs/react-server-dom-webpack-server.node.unbundled.production.js": {
+          "beforeHash": "3e2633610c5ad76e657ef73929ac10b5b27d5c2ba2615808d046dda7882403d5",
+          "afterHash": "cc4a0c8c330108c7ff982c77ebf42293902d632853cb2c82d1351639107d39aa"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js": {
+          "beforeHash": "2a5009f21efb6ad5513ef50652f345e44cf0a757deb0ebcd3a19545a0bf118b1",
+          "afterHash": "ffe3dfe744bcbc71a2f482f58df057546d98926da699b0b5367bec834f1167dc"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.js": {
+          "beforeHash": "a1ef02749666828df9171ad76efe28fcf0a79cbbd7087a919a2c086cc75a10c3",
+          "afterHash": "1471bd5f27afa97c864014bc200f2d6c05c1c8a103eb9446706e555aeb7a7e07"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.edge.development.js": {
+          "beforeHash": "b1b1eacbed29261033a0ddf0b68d35f891b8a22f16181cc9af1e1f765721b116",
+          "afterHash": "0bb0199a6e52543ca7890624406f6f6f6a87095bcbdf4ace721ce7488054b742"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.edge.production.js": {
+          "beforeHash": "f604a6fcb699ca0c124727723c373b75f7fcae7b2108bfbb2ee43760821198dd",
+          "afterHash": "447eef7bd7ec470e2a617c662ba597edc512910d065c36bc3011b7b79de111bd"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.node.development.js": {
+          "beforeHash": "ef5911f73169bdf36d42c42efc868f000547414440bfdaead9d4d5232654163d",
+          "afterHash": "43b060d35601a324b6a31ef75794329008fe2be9e20ecc241b5780af4e8cf993"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.node.production.js": {
+          "beforeHash": "5430e9a67a0ece70f65f15cf9bf6305b6339053ff6557fe4808aadc4700038da",
+          "afterHash": "888c2138cde4dddf12e2cb788060381b92acd8ad00f4cf7812f3bafd4be1c6b7"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.node.unbundled.development.js": {
+          "beforeHash": "e09ce09e8a9fd3656c3bd25540dc49568aabb012687e054d684977bd82cbd921",
+          "afterHash": "5bad94162be9d021c8f250d7dcadf87e83e021483735804b416a46822552e16e"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.node.unbundled.production.js": {
+          "beforeHash": "cf364835327806c88adf02fd8f54f76144f159058dfa3ac390162c213e40c94c",
+          "afterHash": "b3f273478736462d91ff62626250f9f6979f2fa7cb615f117e14fd9312b536e6"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.browser.development.js": {
+          "beforeHash": "75535d3869b99c21ce033fc7cc7efbbf645f9de2e3f92e062b13a3828d611840",
+          "afterHash": "4bd61842b31cb6734b0b4cd1605707b8119bf254e39f1f327bb02c98b9c149c6"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.browser.production.js": {
+          "beforeHash": "9608bf48a5c6fec85d8bc444a06974df8121adce5d056891c71283567124c5ac",
+          "afterHash": "14538b474a6c9b23365d5af0e8ba611a9867e2a25e0e71ff754b0ef833c7718a"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.edge.development.js": {
+          "beforeHash": "305ca1db7decc6e4a2093cf86b3a9848fb290dc6ed51093c3c8f7b81be883ad0",
+          "afterHash": "cbf2c927feb33fe460bc932e2ffbfebe7944444a8ed6761cbe956751aa79ad59"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.edge.production.js": {
+          "beforeHash": "51a1bea2212b86a827955d6d9d62de055d1996848eadb658f985ef4a31876c50",
+          "afterHash": "007cd9ac47a59960f81f934f4e221462011ff581d941f8287865e8059e2bfb41"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.node.development.js": {
+          "beforeHash": "e8bb63eef93c3c335a20b943d65aa5ce01b42f170770ba10f8c86263f306006c",
+          "afterHash": "6f038f7a2f5c290982513753cae063e2c13793b9d5f8191c3362f6c7cb41d272"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.node.production.js": {
+          "beforeHash": "0c5409838c51135520acdf2bcdcdd583bae4029ed27dcc892e6f2dd4fc42e584",
+          "afterHash": "7c7caa089e0af7d24b251ff6fe05cc844deaba56f19130e187ba0503a8936298"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.node.unbundled.development.js": {
+          "beforeHash": "fd965070317da108d693f5f829d30f78fe5c54ec9741a31c90b210ea81f9410f",
+          "afterHash": "2e45494a36fed247dee0b6502c5e3f941e1fc2093d7b4ec995dcc7ff7dabb847"
+        },
+        "package/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-server.node.unbundled.production.js": {
+          "beforeHash": "d2cbbe9a01a437a3c29ddb35ec731bdb503ffbe69734e3dc2e07fd21cb759797",
+          "afterHash": "24f0b09dc039e0ac8b8b833c39993241580b4d5c3b00dad3d110c9622b988f2c"
+        }
+      },
+      "vulnerabilities": {
+        "GHSA-9qr9-h5gf-34mp": {
+          "cves": [],
+          "summary": "Next.js is vulnerable to RCE in React flight protocol",
+          "severity": "CRITICAL",
+          "description": "A vulnerability affects certain React packages<sup>1</sup> for versions 19.0.0, 19.1.0, 19.1.1, and 19.2.0 and frameworks that use the affected packages, including Next.js 15.x and 16.x using the App Router. The issue is tracked upstream as [CVE-2025-55182](https://www.cve.org/CVERecord?id=CVE-2025-55182). \n\nFixed in:\nReact: 19.0.1, 19.1.2, 19.2.1\nNext.js: 15.0.5, 15.1.9, 15.2.6, 15.3.6, 15.4.8, 15.5.7, 16.0.7, 15.6.0-canary.58, 16.1.0-canary.12+\n\nThe vulnerability also affects experimental canary releases starting with 14.3.0-canary.77. Users on any of the 14.3 canary builds should either downgrade to a 14.x stable release or 14.3.0-canary.76.\n\nAll users of stable 15.x or 16.x Next.js versions should upgrade to a patched, stable version immediately.\n\n<sup>1</sup> The affected React packages are:\n- react-server-dom-parcel\n- react-server-dom-turbopack\n- react-server-dom-webpack"
+        }
+      },
+      "description": "",
+      "license": "MIT",
+      "tier": "free"
+    }
+  }
+}
